@@ -281,8 +281,10 @@
 
         // Format price
         function formatPrice(price) {
-            return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'FC' }).format(price);
+            const formatted = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'CDF' }).format(price);
+            return formatted.replace('CDF', 'FC');
         }
+
 
         // Load cart from localStorage
         function loadCart() {
