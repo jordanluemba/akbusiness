@@ -465,7 +465,7 @@
                 const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
                 
                 // Create WhatsApp message
-                let message = `Bonjour AKBUSINESS, je souhaite commander les articles suivants:\n\n`;
+                let message = `Bonjour *AKBUSINESS*, je souhaite commander les articles suivants:\n\n`;
                 
                 cart.forEach(item => {
                     message += `- ${item.name} (${item.quantity} × ${formatPrice(item.price)})\n`;
