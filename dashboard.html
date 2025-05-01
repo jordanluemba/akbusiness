@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AK Business - Admin</title>
+    <title>Dashboard AK Business</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -20,9 +21,38 @@
                             light: '#f59e0b',
                             dark: '#fbbf24'
                         },
+                        success: {
+                            light: '#10b981',
+                            dark: '#34d399'
+                        },
                         danger: {
                             light: '#ef4444',
-                            dark: '#dc2626'
+                            dark: '#f87171'
+                        },
+                        info: {
+                            light: '#3b82f6',
+                            dark: '#60a5fa'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'wave': 'wave 2s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        wave: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '10%': { transform: 'rotate(14deg)' },
+                            '20%': { transform: 'rotate(-8deg)' },
+                            '30%': { transform: 'rotate(14deg)' },
+                            '40%': { transform: 'rotate(-4deg)' },
+                            '50%': { transform: 'rotate(10deg)' },
+                            '60%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(0deg)' }
                         }
                     }
                 }
@@ -30,665 +60,954 @@
         }
     </script>
     <style>
-        .sidebar {
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dashboard-card {
             transition: all 0.3s ease;
         }
-        .sidebar-collapsed {
-            width: 80px;
+        
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.8s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
-        .sidebar-expanded {
-            width: 250px;
+        
+        .animate-bounce-slow {
+            animation: bounce 3s infinite;
         }
-        .main-content {
-            transition: margin-left 0.3s ease;
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
         }
-        .notification-enter {
+        
+        .cart-item-enter {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(-20px);
         }
-        .notification-enter-active {
+        .cart-item-enter-active {
             opacity: 1;
             transform: translateY(0);
             transition: all 300ms ease-out;
         }
-        .notification-exit {
+        .cart-item-exit {
             opacity: 1;
         }
-        .notification-exit-active {
+        .cart-item-exit-active {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(-20px);
             transition: all 300ms ease-out;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .overlay {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay.open {
+            display: block;
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
-    <!-- Login Screen -->
-    <div id="login-screen" class="fixed inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900 z-50">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-            <div class="flex justify-center mb-6">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <!-- Hamburger menu for mobile -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="relative">
+                    <i class="fas fa-shopping-bag text-2xl text-primary-light dark:text-primary-dark animate-waving-hand"></i>
+                    <span class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                </div>
+                <h1 class="text-xl font-bold">Dashboard AK Business</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- View Website Button -->
+                <a href="#" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Voir le site web">
+                    <i class="fas fa-eye"></i>
+                </a>
+                
+                <!-- User Profile -->
                 <div class="flex items-center space-x-2">
-                    <i class="fas fa-shopping-bag text-3xl text-primary-light dark:text-primary-dark"></i>
-                    <h1 class="text-2xl font-bold">AK Business Admin</h1>
-                </div>
-            </div>
-            
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label for="username" class="block text-sm font-medium mb-1">Nom d'utilisateur</label>
-                    <input type="text" id="username" name="username" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                </div>
-                
-                <div>
-                    <label for="password" class="block text-sm font-medium mb-1">Mot de passe</label>
-                    <input type="password" id="password" name="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium">Jordane Luemba</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Administrateur</p>
+                    </div>
+                    <div class="h-8 w-8 rounded-full bg-primary-light dark:bg-primary-dark flex items-center justify-center text-white font-bold relative">
+                        <span>JL</span>
+                        <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-white dark:border-gray-800"></span>
+                    </div>
                 </div>
                 
-                <button type="submit" class="w-full bg-primary-light dark:bg-primary-dark text-white py-2 rounded-lg hover:bg-opacity-90 transition duration-200">
-                    Se connecter
+                <!-- Dark/Light Mode Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
                 </button>
-            </form>
-            
-            <div id="login-error" class="mt-4 text-center text-danger-light dark:text-danger-dark hidden">
-                Identifiants incorrects. Veuillez réessayer.
+                
+                <!-- Notification Button -->
+                <button class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <i class="fas fa-bell"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Admin Dashboard -->
-    <div id="dashboard" class="hidden">
-        <!-- Sidebar -->
-        <div id="sidebar" class="sidebar sidebar-expanded fixed top-0 left-0 h-full bg-white dark:bg-gray-800 shadow-lg z-40 overflow-hidden">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center h-16">
-                <div class="flex items-center space-x-2 whitespace-nowrap">
-                    <i class="fas fa-shopping-bag text-xl text-primary-light dark:text-primary-dark"></i>
-                    <h1 class="font-bold">AK Business</h1>
-                </div>
-                <button id="toggle-sidebar" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            </div>
-            
-            <div class="p-4 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg bg-primary-light dark:bg-primary-dark text-white">
-                    <i class="fas fa-tachometer-alt mr-3"></i>
-                    <span class="nav-text">Tableau de bord</span>
-                </a>
-                
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-shopping-cart mr-3"></i>
-                    <span class="nav-text">Commandes</span>
-                </a>
-                
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-box-open mr-3"></i>
-                    <span class="nav-text">Produits</span>
-                </a>
-                
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-tags mr-3"></i>
-                    <span class="nav-text">Catégories</span>
-                </a>
-                
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-users mr-3"></i>
-                    <span class="nav-text">Clients</span>
-                </a>
-                
-                <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-chart-line mr-3"></i>
-                    <span class="nav-text">Statistiques</span>
-                </a>
-                
-                <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-                    <a href="#" class="nav-link block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-                        <i class="fas fa-cog mr-3"></i>
-                        <span class="nav-text">Paramètres</span>
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg z-50 overflow-y-auto md:hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h2 class="text-lg font-bold flex items-center">
+                <i class="fas fa-chart-line text-xl text-primary-light dark:text-primary-dark mr-2"></i>
+                Analytics
+            </h2>
+            <button id="close-mobile-menu" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-2">
+            <ul class="space-y-1">
+                <li>
+                    <a href="#" class="flex items-center p-2 rounded-lg bg-primary-light dark:bg-primary-dark text-white">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span>Tableau de bord</span>
                     </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+                        <span>Commandes</span>
+                        <span class="ml-auto bg-primary-light dark:bg-primary-dark text-white text-xs px-2 py-0.5 rounded-full">12</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#products-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-box-open mr-3"></i>
+                        <span>Produits</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#categories-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-tags mr-3"></i>
+                        <span>Catégories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-chart-pie mr-3"></i>
+                        <span>Analytiques</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-cog mr-3"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+                <div class="gradient-card rounded-lg p-4 text-white">
+                    <h3 class="font-bold mb-2">Mises à jour</h3>
+                    <p class="text-sm mb-3">Nouvelle version disponible</p>
+                    <button class="w-full bg-white text-primary-light text-sm py-1 rounded-md font-medium">
+                        Mettre à jour
+                    </button>
                 </div>
             </div>
-        </div>
+        </nav>
+    </div>
+    
+    <!-- Overlay for mobile menu -->
+    <div id="mobile-menu-overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
-        <!-- Main Content -->
-        <div class="main-content ml-0 sm:ml-[250px] min-h-screen">
-            <!-- Top Navigation -->
-            <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-30">
-                <div class="px-4 py-3 flex justify-between items-center">
-                    <div class="flex items-center space-x-4">
-                        <button id="mobile-menu-button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 sm:hidden">
-                            <i class="fas fa-bars"></i>
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden md:flex md:flex-shrink-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-bold flex items-center">
+                    <i class="fas fa-chart-line text-xl text-primary-light dark:text-primary-dark mr-2"></i>
+                    Analytics
+                </h2>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto">
+                <ul class="p-2 space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded-lg bg-primary-light dark:bg-primary-dark text-white">
+                            <i class="fas fa-tachometer-alt mr-3"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-shopping-cart mr-3"></i>
+                            <span>Commandes</span>
+                            <span class="ml-auto bg-primary-light dark:bg-primary-dark text-white text-xs px-2 py-0.5 rounded-full">12</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#products-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-box-open mr-3"></i>
+                            <span>Produits</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#categories-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-tags mr-3"></i>
+                            <span>Catégories</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-users mr-3"></i>
+                            <span>Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-chart-pie mr-3"></i>
+                            <span>Analytiques</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-cog mr-3"></i>
+                            <span>Paramètres</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="p-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
+                    <div class="gradient-card rounded-lg p-4 text-white">
+                        <h3 class="font-bold mb-2">Mises à jour</h3>
+                        <p class="text-sm mb-3">Nouvelle version disponible</p>
+                        <button class="w-full bg-white text-primary-light text-sm py-1 rounded-md font-medium">
+                            Mettre à jour
                         </button>
-                        <h2 class="text-xl font-semibold">Tableau de bord</h2>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <!-- Dark/Light Mode Toggle -->
-                        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                            <i class="fas fa-moon dark:hidden"></i>
-                            <i class="fas fa-sun hidden dark:block"></i>
-                        </button>
-                        
-                        <!-- Notifications -->
-                        <div class="relative">
-                            <button id="notifications-button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 relative">
-                                <i class="fas fa-bell"></i>
-                                <span class="absolute -top-1 -right-1 bg-danger-light dark:bg-danger-dark text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
-                            </button>
-                            
-                            <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
-                                <div class="p-3 border-b border-gray-200 dark:border-gray-700">
-                                    <h3 class="font-semibold">Notifications</h3>
-                                </div>
-                                <div class="max-h-60 overflow-y-auto">
-                                    <a href="#" class="block px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
-                                        <div class="text-sm">Nouvelle commande #1234</div>
-                                        <div class="text-xs text-gray-500">Il y a 2 minutes</div>
-                                    </a>
-                                    <a href="#" class="block px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
-                                        <div class="text-sm">Message de Jean Dupont</div>
-                                        <div class="text-xs text-gray-500">Il y a 1 heure</div>
-                                    </a>
-                                    <a href="#" class="block px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <div class="text-sm">Produit épuisé: Smartphone X10</div>
-                                        <div class="text-xs text-gray-500">Il y a 5 heures</div>
-                                    </a>
-                                </div>
-                                <div class="p-2 text-center border-t border-gray-200 dark:border-gray-700">
-                                    <a href="#" class="text-sm text-primary-light dark:text-primary-dark hover:underline">Voir toutes</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- User Profile -->
-                        <div class="relative">
-                            <button id="user-menu-button" class="flex items-center space-x-2 focus:outline-none">
-                                <div class="w-8 h-8 rounded-full bg-primary-light dark:bg-primary-dark flex items-center justify-center text-white">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span class="hidden sm:inline">Admin</span>
-                            </button>
-                            
-                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Mon profil</a>
-                                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Paramètres</a>
-                                <div class="border-t border-gray-200 dark:border-gray-700">
-                                    <a href="#" id="logout-button" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Déconnexion</a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </header>
+            </nav>
+        </aside>
 
-            <!-- Dashboard Content -->
-            <main class="p-4">
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Commandes aujourd'hui</p>
-                                <h3 class="text-2xl font-bold mt-1">24</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+            <!-- Welcome Banner -->
+            <div class="gradient-card rounded-xl p-6 mb-6 text-white relative overflow-hidden">
+                <div class="relative z-10">
+                    <h2 class="text-2xl font-bold mb-2">Bonjour, Jordane 👋</h2>
+                    <p class="mb-4">Voici ce qui se passe avec votre boutique aujourd'hui</p>
+                    <button class="bg-white text-primary-light px-4 py-2 rounded-md font-medium flex items-center">
+                        <i class="fas fa-rocket mr-2"></i>
+                        Voir les statistiques
+                    </button>
+                </div>
+                <div class="absolute -bottom-10 -right-10 opacity-20">
+                    <i class="fas fa-chart-pie text-9xl"></i>
+                </div>
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary-light to-primary-dark opacity-90"></div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Total Sales -->
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Ventes totales</p>
+                            <h3 class="text-2xl font-bold mt-1">$12,345</h3>
+                            <p class="text-sm mt-2 flex items-center text-green-500">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>12% vs hier</span>
+                            </p>
                         </div>
-                        <p class="text-sm text-green-500 mt-2"><i class="fas fa-arrow-up mr-1"></i> 12% depuis hier</p>
+                        <div class="p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
                     </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Revenu aujourd'hui</p>
-                                <h3 class="text-2xl font-bold mt-1">1,240,500 FC</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                        </div>
-                        <p class="text-sm text-green-500 mt-2"><i class="fas fa-arrow-up mr-1"></i> 8% depuis hier</p>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Nouveaux clients</p>
-                                <h3 class="text-2xl font-bold mt-1">7</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <p class="text-sm text-red-500 mt-2"><i class="fas fa-arrow-down mr-1"></i> 2% depuis hier</p>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Produits en stock</p>
-                                <h3 class="text-2xl font-bold mt-1">156</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-                        </div>
-                        <p class="text-sm text-red-500 mt-2"><i class="fas fa-exclamation-circle mr-1"></i> 12 produits épuisés</p>
+                    <div class="mt-4 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500" style="width: 65%"></div>
                     </div>
                 </div>
                 
-                <!-- Recent Orders -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
-                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <h3 class="font-semibold">Dernières commandes</h3>
-                        <a href="#" class="text-sm text-primary-light dark:text-primary-dark hover:underline">Voir toutes</a>
+                <!-- New Orders -->
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Nouvelles commandes</p>
+                            <h3 class="text-2xl font-bold mt-1">24</h3>
+                            <p class="text-sm mt-2 flex items-center text-primary-light dark:text-primary-dark">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>5% vs hier</span>
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
                     </div>
+                    <div class="mt-4 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary-light dark:bg-primary-dark" style="width: 45%"></div>
+                    </div>
+                </div>
+                
+                <!-- Visitors -->
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Visiteurs</p>
+                            <h3 class="text-2xl font-bold mt-1">1,234</h3>
+                            <p class="text-sm mt-2 flex items-center text-yellow-500">
+                                <i class="fas fa-arrow-down mr-1"></i>
+                                <span>3% vs hier</span>
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-500" style="width: 30%"></div>
+                    </div>
+                </div>
+                
+                <!-- Conversion Rate -->
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Taux de conversion</p>
+                            <h3 class="text-2xl font-bold mt-1">3.2%</h3>
+                            <p class="text-sm mt-2 flex items-center text-purple-500">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>1.2% vs hier</span>
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500" style="width: 32%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Sales Chart -->
+                <div class="lg:col-span-2 dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold">Performances des ventes</h3>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md">7j</button>
+                            <button class="px-3 py-1 text-xs bg-primary-light dark:bg-primary-dark text-white rounded-md">30j</button>
+                            <button class="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md">90j</button>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Revenue Breakdown -->
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <h3 class="font-bold mb-4">Répartition du revenu</h3>
+                    <div class="h-64">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <section id="products-section" class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Gestion des produits</h3>
+                    <button id="add-product-btn" class="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-md hover:bg-opacity-90 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Ajouter un produit
+                    </button>
+                </div>
+                
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead>
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="px-4 py-3 text-left text-sm font-medium">N° Commande</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium">Client</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium">Date</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium">Montant</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium">Statut</th>
-                                    <th class="px-4 py-3 text-right text-sm font-medium">Actions</th>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Image</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nom</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catégorie</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prix</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-4 py-3">#1234</td>
-                                    <td class="px-4 py-3">Jean Dupont</td>
-                                    <td class="px-4 py-3">12/06/2023</td>
-                                    <td class="px-4 py-3">250,000 FC</td>
-                                    <td class="px-4 py-3"><span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">Livré</span></td>
-                                    <td class="px-4 py-3 text-right">
-                                        <button class="p-1 text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="products-table-body">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Affichage de <span id="products-start">1</span> à <span id="products-end">5</span> sur <span id="products-total">12</span> produits
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md disabled:opacity-50" id="prev-page" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md disabled:opacity-50" id="next-page">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Categories Section -->
+            <section id="categories-section" class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Gestion des catégories</h3>
+                    <button id="add-category-btn" class="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-md hover:bg-opacity-90 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Ajouter une catégorie
+                    </button>
+                </div>
+                
+                <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nom</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre de produits</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Statut</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
-                                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-4 py-3">#1233</td>
-                                    <td class="px-4 py-3">Marie Lambert</td>
-                                    <td class="px-4 py-3">12/06/2023</td>
-                                    <td class="px-4 py-3">180,500 FC</td>
-                                    <td class="px-4 py-3"><span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">En cours</span></td>
-                                    <td class="px-4 py-3 text-right">
-                                        <button class="p-1 text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-4 py-3">#1232</td>
-                                    <td class="px-4 py-3">Paul Martin</td>
-                                    <td class="px-4 py-3">11/06/2023</td>
-                                    <td class="px-4 py-3">320,000 FC</td>
-                                    <td class="px-4 py-3"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">Expédié</span></td>
-                                    <td class="px-4 py-3 text-right">
-                                        <button class="p-1 text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-4 py-3">#1231</td>
-                                    <td class="px-4 py-3">Sophie Durand</td>
-                                    <td class="px-4 py-3">11/06/2023</td>
-                                    <td class="px-4 py-3">95,000 FC</td>
-                                    <td class="px-4 py-3"><span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">Annulé</span></td>
-                                    <td class="px-4 py-3 text-right">
-                                        <button class="p-1 text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="categories-table-body">
+                                <!-- Categories will be loaded here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
-                
-                <!-- Products and Categories -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Products -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h3 class="font-semibold">Produits récents</h3>
-                            <div class="flex space-x-2">
-                                <a href="#" class="text-sm text-primary-light dark:text-primary-dark hover:underline">Voir tous</a>
-                                <button id="add-product-button" class="text-sm bg-primary-light dark:bg-primary-dark text-white px-3 py-1 rounded hover:bg-opacity-90">
-                                    <i class="fas fa-plus mr-1"></i> Ajouter
-                                </button>
-                            </div>
-                        </div>
-                        <div class="p-4 space-y-4">
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                                <img src="https://via.placeholder.com/300x300?text=Smartphone" alt="Smartphone X10" class="w-12 h-12 object-contain rounded">
-                                <div class="flex-grow">
-                                    <h4 class="font-medium">Smartphone X10</h4>
-                                    <p class="text-sm text-gray-500">Électronique</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-bold">250,000 FC</p>
-                                    <p class="text-sm text-green-500">En stock: 15</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                                <img src="https://via.placeholder.com/300x300?text=T-Shirt" alt="T-Shirt Classique" class="w-12 h-12 object-contain rounded">
-                                <div class="flex-grow">
-                                    <h4 class="font-medium">T-Shirt Classique</h4>
-                                    <p class="text-sm text-gray-500">Vêtements</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-bold">15,000 FC</p>
-                                    <p class="text-sm text-green-500">En stock: 42</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                                <img src="https://via.placeholder.com/300x300?text=Lampadaire" alt="Lampadaire Moderne" class="w-12 h-12 object-contain rounded">
-                                <div class="flex-grow">
-                                    <h4 class="font-medium">Lampadaire Moderne</h4>
-                                    <p class="text-sm text-gray-500">Maison</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-bold">45,000 FC</p>
-                                    <p class="text-sm text-red-500">En stock: 0</p>
-                                </div>
-                            </div>
-                        </div>
+            </section>
+            
+            <!-- Product Modal -->
+            <div id="product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
                     </div>
-                    
-                    <!-- Categories -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h3 class="font-semibold">Catégories</h3>
-                            <div class="flex space-x-2">
-                                <a href="#" class="text-sm text-primary-light dark:text-primary-dark hover:underline">Voir toutes</a>
-                                <button id="add-category-button" class="text-sm bg-primary-light dark:bg-primary-dark text-white px-3 py-1 rounded hover:bg-opacity-90">
-                                    <i class="fas fa-plus mr-1"></i> Ajouter
-                                </button>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="product-modal-title">Ajouter un produit</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du produit</label>
+                                    <input type="text" id="product-name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</label>
+                                    <select id="product-category" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                        <option value="electronics">Électronique</option>
+                                        <option value="clothing">Vêtements</option>
+                                        <option value="home">Maison</option>
+                                        <option value="books">Livres</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="product-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix</label>
+                                    <input type="number" id="product-price" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-stock" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock</label>
+                                    <input type="number" id="product-stock" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                    <textarea id="product-description" rows="3" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white"></textarea>
+                                </div>
+                                <div>
+                                    <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
+                                    <input type="file" id="product-image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
+                                </div>
                             </div>
                         </div>
-                        <div class="p-4">
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                                    Électronique
-                                    <button class="ml-2 text-gray-500 hover:text-danger-light dark:hover:text-danger-dark">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </span>
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                    Vêtements
-                                    <button class="ml-2 text-gray-500 hover:text-danger-light dark:hover:text-danger-dark">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </span>
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                                    Maison
-                                    <button class="ml-2 text-gray-500 hover:text-danger-light dark:hover:text-danger-dark">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </span>
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                                    Livres
-                                    <button class="ml-2 text-gray-500 hover:text-danger-light dark:hover:text-danger-dark">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </span>
-                                <span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center">
-                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                    Sports
-                                    <button class="ml-2 text-gray-500 hover:text-danger-light dark:hover:text-danger-dark">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </span>
-                            </div>
+                        <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" id="save-product-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-light dark:bg-primary-dark text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:ml-3 sm:w-auto sm:text-sm">
+                                Enregistrer
+                            </button>
+                            <button type="button" id="cancel-product-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Annuler
+                            </button>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- Add Product Modal -->
-    <div id="add-product-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold">Ajouter un produit</h3>
-                    <button id="close-product-modal" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <form id="product-form" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="product-name" class="block text-sm font-medium mb-1">Nom du produit</label>
-                            <input type="text" id="product-name" name="product-name" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                        </div>
-                        
-                        <div>
-                            <label for="product-price" class="block text-sm font-medium mb-1">Prix</label>
-                            <input type="number" id="product-price" name="product-price" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label for="product-category" class="block text-sm font-medium mb-1">Catégorie</label>
-                        <select id="product-category" name="product-category" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                            <option value="">Sélectionner une catégorie</option>
-                            <option value="electronics">Électronique</option>
-                            <option value="clothing">Vêtements</option>
-                            <option value="home">Maison</option>
-                            <option value="books">Livres</option>
-                            <option value="sports">Sports</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="product-stock" class="block text-sm font-medium mb-1">Quantité en stock</label>
-                        <input type="number" id="product-stock" name="product-stock" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                    </div>
-                    
-                    <div>
-                        <label for="product-description" class="block text-sm font-medium mb-1">Description</label>
-                        <textarea id="product-description" name="product-description" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label for="product-image" class="block text-sm font-medium mb-1">Image</label>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-                                <img id="product-image-preview" src="" alt="" class="hidden max-w-full max-h-full">
-                                <i class="fas fa-image text-gray-400" id="product-image-icon"></i>
-                            </div>
-                            <div class="flex-grow">
-                                <input type="file" id="product-image" name="product-image" class="hidden" accept="image/*">
-                                <button type="button" id="upload-image-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
-                                    <i class="fas fa-upload mr-2"></i>Choisir une image
-                                </button>
-                                <p class="text-xs text-gray-500 mt-1">JPEG, PNG ou GIF. Taille max: 2MB</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-4 flex justify-end space-x-3">
-                        <button type="button" id="cancel-product-btn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                            Annuler
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg hover:bg-opacity-90">
-                            Enregistrer
-                        </button>
-                    </div>
-                </form>
             </div>
-        </div>
-    </div>
-
-    <!-- Add Category Modal -->
-    <div id="add-category-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold">Ajouter une catégorie</h3>
-                    <button id="close-category-modal" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <form id="category-form" class="space-y-4">
-                    <div>
-                        <label for="category-name" class="block text-sm font-medium mb-1">Nom de la catégorie</label>
-                        <input type="text" id="category-name" name="category-name" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark">
+            
+            <!-- Category Modal -->
+            <div id="category-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
                     </div>
-                    
-                    <div>
-                        <label for="category-color" class="block text-sm font-medium mb-1">Couleur</label>
-                        <div class="flex space-x-2">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="category-color" value="blue" class="hidden" checked>
-                                <span class="w-6 h-6 rounded-full bg-blue-500 block cursor-pointer border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600"></span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="category-color" value="green" class="hidden">
-                                <span class="w-6 h-6 rounded-full bg-green-500 block cursor-pointer border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600"></span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="category-color" value="yellow" class="hidden">
-                                <span class="w-6 h-6 rounded-full bg-yellow-500 block cursor-pointer border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600"></span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="category-color" value="purple" class="hidden">
-                                <span class="w-6 h-6 rounded-full bg-purple-500 block cursor-pointer border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600"></span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="category-color" value="red" class="hidden">
-                                <span class="w-6 h-6 rounded-full bg-red-500 block cursor-pointer border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600"></span>
-                            </label>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="category-modal-title">Ajouter une catégorie</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom de la catégorie</label>
+                                    <input type="text" id="category-name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="category-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Statut</label>
+                                    <select id="category-status" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="category-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
+                                    <input type="file" id="category-image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" id="save-category-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-light dark:bg-primary-dark text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:ml-3 sm:w-auto sm:text-sm">
+                                Enregistrer
+                            </button>
+                            <button type="button" id="cancel-category-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Annuler
+                            </button>
                         </div>
                     </div>
-                    
-                    <div class="pt-4 flex justify-end space-x-3">
-                        <button type="button" id="cancel-category-btn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                            Annuler
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg hover:bg-opacity-90">
-                            Enregistrer
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Notification Container -->
-    <div id="notification-container" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg z-50">
+        <div class="flex justify-around items-center p-2">
+            <a href="#" class="p-2 rounded-full text-primary-light dark:text-primary-dark">
+                <i class="fas fa-tachometer-alt text-xl"></i>
+            </a>
+            <a href="#products-section" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
+                <i class="fas fa-box-open text-xl"></i>
+            </a>
+            <a href="#categories-section" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
+                <i class="fas fa-tags text-xl"></i>
+            </a>
+            <a href="#" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
+                <i class="fas fa-cog text-xl"></i>
+            </a>
+        </div>
+    </div>
 
     <script>
+        // Sample data
+        const sampleProducts = [
+            {
+                id: 1,
+                name: "Smartphone X10",
+                category: "electronics",
+                price: 250,
+                stock: 15,
+                image: "img1.jpg",
+                description: "Smartphone haut de gamme avec écran AMOLED 6.5 pouces et triple caméra."
+            },
+            {
+                id: 2,
+                name: "T-Shirt Classique",
+                category: "clothing",
+                price: 15,
+                stock: 42,
+                image: "img2.jpg",
+                description: "T-shirt en coton 100% de haute qualité, disponible en plusieurs couleurs."
+            },
+            {
+                id: 3,
+                name: "Lampadaire Moderne",
+                category: "home",
+                price: 45,
+                stock: 8,
+                image: "img3.jpg",
+                description: "Lampadaire design avec lumière LED réglable et télécommande."
+            },
+            {
+                id: 4,
+                name: "Roman Best-Seller",
+                category: "books",
+                price: 12,
+                stock: 23,
+                image: "img4.jpg",
+                description: "Le dernier roman à succès de l'auteur primé John Doe."
+            },
+            {
+                id: 5,
+                name: "Écouteurs Sans Fil",
+                category: "electronics",
+                price: 35,
+                stock: 17,
+                image: "img5.jpg",
+                description: "Écouteurs Bluetooth avec réduction de bruit et autonomie de 20 heures."
+            }
+        ];
+
+        const sampleCategories = [
+            {
+                id: 1,
+                name: "Électronique",
+                productCount: 45,
+                status: "active",
+                image: "cat-electronics.jpg"
+            },
+            {
+                id: 2,
+                name: "Vêtements",
+                productCount: 120,
+                status: "active",
+                image: "cat-clothing.jpg"
+            },
+            {
+                id: 3,
+                name: "Maison",
+                productCount: 78,
+                status: "active",
+                image: "cat-home.jpg"
+            },
+            {
+                id: 4,
+                name: "Livres",
+                productCount: 56,
+                status: "active",
+                image: "cat-books.jpg"
+            }
+        ];
+
         // DOM Elements
-        const loginScreen = document.getElementById('login-screen');
-        const dashboard = document.getElementById('dashboard');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutButton = document.getElementById('logout-button');
-        const themeToggle = document.getElementById('theme-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const toggleSidebar = document.getElementById('toggle-sidebar');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const navTexts = document.querySelectorAll('.nav-text');
-        const notificationsButton = document.getElementById('notifications-button');
-        const notificationsDropdown = document.getElementById('notifications-dropdown');
-        const userMenuButton = document.getElementById('user-menu-button');
-        const userDropdown = document.getElementById('user-dropdown');
-        const addProductButton = document.getElementById('add-product-button');
-        const addProductModal = document.getElementById('add-product-modal');
-        const closeProductModal = document.getElementById('close-product-modal');
+        const closeMobileMenu = document.getElementById('close-mobile-menu');
+        const mobileSidebar = document.querySelector('.mobile-sidebar');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const themeToggle = document.getElementById('theme-toggle');
+        const productsTableBody = document.getElementById('products-table-body');
+        const categoriesTableBody = document.getElementById('categories-table-body');
+        const addProductBtn = document.getElementById('add-product-btn');
+        const addCategoryBtn = document.getElementById('add-category-btn');
+        const productModal = document.getElementById('product-modal');
+        const categoryModal = document.getElementById('category-modal');
+        const saveProductBtn = document.getElementById('save-product-btn');
         const cancelProductBtn = document.getElementById('cancel-product-btn');
-        const productForm = document.getElementById('product-form');
-        const uploadImageBtn = document.getElementById('upload-image-btn');
-        const productImage = document.getElementById('product-image');
-        const productImagePreview = document.getElementById('product-image-preview');
-        const productImageIcon = document.getElementById('product-image-icon');
-        const addCategoryButton = document.getElementById('add-category-button');
-        const addCategoryModal = document.getElementById('add-category-modal');
-        const closeCategoryModal = document.getElementById('close-category-modal');
+        const saveCategoryBtn = document.getElementById('save-category-btn');
         const cancelCategoryBtn = document.getElementById('cancel-category-btn');
-        const categoryForm = document.getElementById('category-form');
-        const notificationContainer = document.getElementById('notification-container');
 
         // State
-        let isSidebarCollapsed = false;
+        let currentProductId = null;
+        let currentCategoryId = null;
+        let currentPage = 1;
+        const itemsPerPage = 5;
 
         // Initialize
         function init() {
+            renderProducts();
+            renderCategories();
             setupEventListeners();
+            initCharts();
+        }
+
+        // Render products
+        function renderProducts() {
+            productsTableBody.innerHTML = '';
             
-            // Check for saved theme preference
-            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, sampleProducts.length);
+            
+            document.getElementById('products-start').textContent = startIndex + 1;
+            document.getElementById('products-end').textContent = endIndex;
+            document.getElementById('products-total').textContent = sampleProducts.length;
+            
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = endIndex >= sampleProducts.length;
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const product = sampleProducts[i];
+                const productRow = document.createElement('tr');
+                productRow.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                            <img src="${product.image}" alt="${product.name}" class="h-full w-full object-cover">
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">${product.name}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${getCategoryName(product.category)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-bold">$${product.price.toFixed(2)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm ${product.stock < 10 ? 'text-red-500' : 'text-green-500'}">${product.stock}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                        <button class="edit-product-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="${product.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-product-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="${product.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                productsTableBody.appendChild(productRow);
             }
         }
 
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 ${
-                type === 'success' ? 'bg-green-500 text-white' : 
-                type === 'error' ? 'bg-red-500 text-white' : 
-                'bg-blue-500 text-white'
-            }`;
-            notification.innerHTML = `
-                <i class="fas ${
-                    type === 'success' ? 'fa-check-circle' : 
-                    type === 'error' ? 'fa-exclamation-circle' : 
-                    'fa-info-circle'
-                }"></i>
-                <span>${message}</span>
-            `;
+        // Render categories
+        function renderCategories() {
+            categoriesTableBody.innerHTML = '';
             
-            notificationContainer.appendChild(notification);
+            sampleCategories.forEach(category => {
+                const categoryRow = document.createElement('tr');
+                categoryRow.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden mr-3">
+                                <img src="${category.image}" alt="${category.name}" class="h-full w-full object-cover">
+                            </div>
+                            <span class="font-medium">${category.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${category.productCount}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <span class="px-2 py-1 text-xs rounded-full ${category.status === 'active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'}">
+                            ${category.status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                        <button class="edit-category-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="${category.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-category-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="${category.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                categoriesTableBody.appendChild(categoryRow);
+            });
+        }
+
+        // Get category name by ID
+        function getCategoryName(categoryId) {
+            const category = sampleCategories.find(cat => cat.id === categoryId);
+            return category ? category.name : categoryId;
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                    datasets: [{
+                        label: 'Ventes 2023',
+                        data: [1500, 2100, 1800, 2400, 2800, 3200, 3500],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Ventes 2022',
+                        data: [1200, 1600, 1400, 1900, 2200, 2500, 2700],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false,
+                                color: function(context) {
+                                    return context.tick.value === 0 ? '#9CA3AF' : 'rgba(156, 163, 175, 0.1)';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
             
-            // Auto remove after 3 seconds
-            setTimeout(() => {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Électronique', 'Vêtements', 'Maison', 'Livres', 'Autres'],
+                    datasets: [{
+                        data: [45, 20, 15, 10, 10],
+                        backgroundColor: [
+                            '#4f46e5',
+                            '#f59e0b',
+                            '#10b981',
+                            '#3b82f6',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Open product modal
+        function openProductModal(product = null) {
+            const modalTitle = document.getElementById('product-modal-title');
+            const modal = document.getElementById('product-modal');
+            
+            if (product) {
+                modalTitle.textContent = 'Modifier le produit';
+                currentProductId = product.id;
+                document.getElementById('product-name').value = product.name;
+                document.getElementById('product-category').value = product.category;
+                document.getElementById('product-price').value = product.price;
+                document.getElementById('product-stock').value = product.stock;
+                document.getElementById('product-description').value = product.description;
+            } else {
+                modalTitle.textContent = 'Ajouter un produit';
+                currentProductId = null;
+                document.getElementById('product-name').value = '';
+                document.getElementById('product-category').value = 'electronics';
+                document.getElementById('product-price').value = '';
+                document.getElementById('product-stock').value = '';
+                document.getElementById('product-description').value = '';
+                document.getElementById('product-image').value = '';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Open category modal
+        function openCategoryModal(category = null) {
+            const modalTitle = document.getElementById('category-modal-title');
+            const modal = document.getElementById('category-modal');
+            
+            if (category) {
+                modalTitle.textContent = 'Modifier la catégorie';
+                currentCategoryId = category.id;
+                document.getElementById('category-name').value = category.name;
+                document.getElementById('category-status').value = category.status;
+            } else {
+                modalTitle.textContent = 'Ajouter une catégorie';
+                currentCategoryId = null;
+                document.getElementById('category-name').value = '';
+                document.getElementById('category-status').value = 'active';
+                document.getElementById('category-image').value = '';
+            }
+            
+            modal.classList.remove('hidden');
         }
 
         // Setup event listeners
         function setupEventListeners() {
-            // Login form
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                // Simple validation (in a real app, this would be a server-side check)
-                if (username === 'admin' && password === 'admin123') {
-                    loginError.classList.add('hidden');
-                    loginScreen.classList.add('hidden');
-                    dashboard.classList.remove('hidden');
-                    showNotification('Connexion réussie');
-                } else {
-                    loginError.classList.remove('hidden');
-                }
+            // Mobile menu
+            mobileMenuButton.addEventListener('click', () => {
+                mobileSidebar.classList.add('open');
+                mobileMenuOverlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
             });
             
-            // Logout
-            logoutButton.addEventListener('click', () => {
-                dashboard.classList.add('hidden');
-                loginScreen.classList.remove('hidden');
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                showNotification('Déconnexion réussie');
+            closeMobileMenu.addEventListener('click', () => {
+                mobileSidebar.classList.remove('open');
+                mobileMenuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+            
+            mobileMenuOverlay.addEventListener('click', () => {
+                mobileSidebar.classList.remove('open');
+                mobileMenuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
             });
             
             // Theme toggle
@@ -702,122 +1021,164 @@
                 }
             });
             
-            // Sidebar toggle
-            toggleSidebar.addEventListener('click', () => {
-                isSidebarCollapsed = !isSidebarCollapsed;
-                
-                if (isSidebarCollapsed) {
-                    sidebar.classList.remove('sidebar-expanded');
-                    sidebar.classList.add('sidebar-collapsed');
-                    document.querySelector('.main-content').classList.remove('sm:ml-[250px]');
-                    document.querySelector('.main-content').classList.add('sm:ml-[80px]');
-                    navTexts.forEach(text => text.classList.add('hidden'));
-                    toggleSidebar.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                } else {
-                    sidebar.classList.remove('sidebar-collapsed');
-                    sidebar.classList.add('sidebar-expanded');
-                    document.querySelector('.main-content').classList.remove('sm:ml-[80px]');
-                    document.querySelector('.main-content').classList.add('sm:ml-[250px]');
-                    navTexts.forEach(text => text.classList.remove('hidden'));
-                    toggleSidebar.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                }
-            });
+            // Check for saved theme preference
+            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
             
-            // Mobile menu toggle
-            mobileMenuButton.addEventListener('click', () => {
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.remove('-translate-x-full');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                }
-            });
+            // Products
+            addProductBtn.addEventListener('click', () => openProductModal());
             
-            // Notifications dropdown
-            notificationsButton.addEventListener('click', () => {
-                notificationsDropdown.classList.toggle('hidden');
-                userDropdown.classList.add('hidden');
-            });
-            
-            // User dropdown
-            userMenuButton.addEventListener('click', () => {
-                userDropdown.classList.toggle('hidden');
-                notificationsDropdown.classList.add('hidden');
-            });
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!notificationsButton.contains(e.target) && !notificationsDropdown.contains(e.target)) {
-                    notificationsDropdown.classList.add('hidden');
+            productsTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-product-btn') || e.target.closest('.edit-product-btn')) {
+                    const button = e.target.classList.contains('edit-product-btn') ? e.target : e.target.closest('.edit-product-btn');
+                    const productId = parseInt(button.dataset.id);
+                    const product = sampleProducts.find(p => p.id === productId);
+                    if (product) openProductModal(product);
                 }
                 
-                if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userDropdown.classList.add('hidden');
+                if (e.target.classList.contains('delete-product-btn') || e.target.closest('.delete-product-btn')) {
+                    const button = e.target.classList.contains('delete-product-btn') ? e.target : e.target.closest('.delete-product-btn');
+                    const productId = parseInt(button.dataset.id);
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+                        // In a real app, you would make an API call here
+                        const index = sampleProducts.findIndex(p => p.id === productId);
+                        if (index !== -1) {
+                            sampleProducts.splice(index, 1);
+                            renderProducts();
+                            alert('Produit supprimé avec succès');
+                        }
+                    }
                 }
             });
             
-            // Add product modal
-            addProductButton.addEventListener('click', () => {
-                addProductModal.classList.remove('hidden');
+            // Categories
+            addCategoryBtn.addEventListener('click', () => openCategoryModal());
+            
+            categoriesTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-category-btn') || e.target.closest('.edit-category-btn')) {
+                    const button = e.target.classList.contains('edit-category-btn') ? e.target : e.target.closest('.edit-category-btn');
+                    const categoryId = parseInt(button.dataset.id);
+                    const category = sampleCategories.find(c => c.id === categoryId);
+                    if (category) openCategoryModal(category);
+                }
+                
+                if (e.target.classList.contains('delete-category-btn') || e.target.closest('.delete-category-btn')) {
+                    const button = e.target.classList.contains('delete-category-btn') ? e.target : e.target.closest('.delete-category-btn');
+                    const categoryId = parseInt(button.dataset.id);
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
+                        // In a real app, you would make an API call here
+                        const index = sampleCategories.findIndex(c => c.id === categoryId);
+                        if (index !== -1) {
+                            sampleCategories.splice(index, 1);
+                            renderCategories();
+                            alert('Catégorie supprimée avec succès');
+                        }
+                    }
+                }
             });
             
-            closeProductModal.addEventListener('click', () => {
-                addProductModal.classList.add('hidden');
+            // Product modal
+            saveProductBtn.addEventListener('click', () => {
+                const name = document.getElementById('product-name').value;
+                const category = document.getElementById('product-category').value;
+                const price = parseFloat(document.getElementById('product-price').value);
+                const stock = parseInt(document.getElementById('product-stock').value);
+                const description = document.getElementById('product-description').value;
+                
+                if (!name || !category || isNaN(price) || isNaN(stock) || !description) {
+                    alert('Veuillez remplir tous les champs');
+                    return;
+                }
+                
+                if (currentProductId) {
+                    // Update existing product
+                    const product = sampleProducts.find(p => p.id === currentProductId);
+                    if (product) {
+                        product.name = name;
+                        product.category = category;
+                        product.price = price;
+                        product.stock = stock;
+                        product.description = description;
+                        // In a real app, you would handle the image upload here
+                    }
+                } else {
+                    // Add new product
+                    const newProduct = {
+                        id: Math.max(...sampleProducts.map(p => p.id)) + 1,
+                        name,
+                        category,
+                        price,
+                        stock,
+                        description,
+                        image: 'default-product.jpg' // In a real app, you would handle the image upload
+                    };
+                    sampleProducts.push(newProduct);
+                }
+                
+                renderProducts();
+                productModal.classList.add('hidden');
+                alert(currentProductId ? 'Produit mis à jour avec succès' : 'Produit ajouté avec succès');
             });
             
             cancelProductBtn.addEventListener('click', () => {
-                addProductModal.classList.add('hidden');
+                productModal.classList.add('hidden');
             });
             
-            // Product form
-            productForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                addProductModal.classList.add('hidden');
-                showNotification('Produit ajouté avec succès');
-                // In a real app, you would send the data to your backend here
-                productForm.reset();
-                productImagePreview.src = '';
-                productImagePreview.classList.add('hidden');
-                productImageIcon.classList.remove('hidden');
-            });
-            
-            // Image upload
-            uploadImageBtn.addEventListener('click', () => {
-                productImage.click();
-            });
-            
-            productImage.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        productImagePreview.src = event.target.result;
-                        productImagePreview.classList.remove('hidden');
-                        productImageIcon.classList.add('hidden');
-                    };
-                    reader.readAsDataURL(file);
+            // Category modal
+            saveCategoryBtn.addEventListener('click', () => {
+                const name = document.getElementById('category-name').value;
+                const status = document.getElementById('category-status').value;
+                
+                if (!name) {
+                    alert('Veuillez remplir tous les champs');
+                    return;
                 }
-            });
-            
-            // Add category modal
-            addCategoryButton.addEventListener('click', () => {
-                addCategoryModal.classList.remove('hidden');
-            });
-            
-            closeCategoryModal.addEventListener('click', () => {
-                addCategoryModal.classList.add('hidden');
+                
+                if (currentCategoryId) {
+                    // Update existing category
+                    const category = sampleCategories.find(c => c.id === currentCategoryId);
+                    if (category) {
+                        category.name = name;
+                        category.status = status;
+                        // In a real app, you would handle the image upload here
+                    }
+                } else {
+                    // Add new category
+                    const newCategory = {
+                        id: Math.max(...sampleCategories.map(c => c.id)) + 1,
+                        name,
+                        status,
+                        productCount: 0,
+                        image: 'default-category.jpg' // In a real app, you would handle the image upload
+                    };
+                    sampleCategories.push(newCategory);
+                }
+                
+                renderCategories();
+                categoryModal.classList.add('hidden');
+                alert(currentCategoryId ? 'Catégorie mise à jour avec succès' : 'Catégorie ajoutée avec succès');
             });
             
             cancelCategoryBtn.addEventListener('click', () => {
-                addCategoryModal.classList.add('hidden');
+                categoryModal.classList.add('hidden');
             });
             
-            // Category form
-            categoryForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                addCategoryModal.classList.add('hidden');
-                showNotification('Catégorie ajoutée avec succès');
-                // In a real app, you would send the data to your backend here
-                categoryForm.reset();
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderProducts();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', () => {
+                if ((currentPage * itemsPerPage) < sampleProducts.length) {
+                    currentPage++;
+                    renderProducts();
+                }
             });
         }
 
