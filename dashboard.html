@@ -644,13 +644,10 @@
                 modalTitle.textContent = 'Modifier la catégorie';
                 currentCategoryId = category.id;
                 document.getElementById('category-name').value = category.name;
-                document.getElementById('category-status').value = category.status;
             } else {
                 modalTitle.textContent = 'Ajouter une catégorie';
                 currentCategoryId = null;
                 document.getElementById('category-name').value = '';
-                document.getElementById('category-status').value = 'active';
-                document.getElementById('category-image').value = '';
             }
             
             modal.classList.remove('hidden');
