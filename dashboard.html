@@ -749,10 +749,9 @@
                 const name = document.getElementById('product-name').value;
                 const category = document.getElementById('product-category').value;
                 const price = parseFloat(document.getElementById('product-price').value);
-                const stock = parseInt(document.getElementById('product-stock').value);
                 const description = document.getElementById('product-description').value;
                 
-                if (!name || !category || isNaN(price) || isNaN(stock) || !description) {
+                if (!name || !category || isNaN(price) || !description) {
                     alert('Veuillez remplir tous les champs');
                     return;
                 }
