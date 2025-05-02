@@ -791,7 +791,6 @@
             // Category modal
             saveCategoryBtn.addEventListener('click', () => {
                 const name = document.getElementById('category-name').value;
-                const status = document.getElementById('category-status').value;
                 
                 if (!name) {
                     alert('Veuillez remplir tous les champs');
@@ -803,7 +802,6 @@
                     const category = sampleCategories.find(c => c.id === currentCategoryId);
                     if (category) {
                         category.name = name;
-                        category.status = status;
                         // In a real app, you would handle the image upload here
                     }
                 } else {
@@ -811,9 +809,7 @@
                     const newCategory = {
                         id: Math.max(...sampleCategories.map(c => c.id)) + 1,
                         name,
-                        status,
                         productCount: 0,
-                        image: 'default-category.jpg' // In a real app, you would handle the image upload
                     };
                     sampleCategories.push(newCategory);
                 }
