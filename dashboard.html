@@ -565,7 +565,6 @@
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">${product.name}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${getCategoryName(product.category)}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-bold">$${product.price.toFixed(2)}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm ${product.stock < 10 ? 'text-red-500' : 'text-green-500'}">${product.stock}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                         <button class="edit-product-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="${product.id}">
                             <i class="fas fa-edit"></i>
