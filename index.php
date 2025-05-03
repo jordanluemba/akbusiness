@@ -68,7 +68,7 @@
         $dbCategories = $stmt->fetchAll();
         
         foreach ($dbCategories as $cat) {
-            $categories[$cat['idcategory'] = $cat['name'];
+            $categories[$cat['idcategory']] = $cat['name'];
         }
     } catch (PDOException $e) {
         // En production, vous pourriez logger cette erreur
