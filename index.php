@@ -165,16 +165,16 @@ try {
                     </p>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                </div>
+                        <a href="https://www.facebook.com/akichmajaveli.kiaku" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/akichkapita?igsh=MTFpb3VrYXJmenVkcw==" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/243810571546" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
             </div>
             <div class="border-t border-gray-200 dark:border-gray-700 mt-6 pt-6 text-center text-sm text-gray-500 dark:text-gray-400">
                 <p>© 2025 AK Business. Tous droits réservés.</p>
