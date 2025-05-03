@@ -76,41 +76,47 @@ function saveProduct($data) {
         throw new Exception("Le nom du produit est obligatoire.");
     }
 
-    $imagePath = handleImageUpload();
+    // Gestion de l'image uploadée
+    $imageName = 'default.jpg';
+    if (!empty($_FILES['image']['name'])) {
+        $uploadDir = 'uploads/produits/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true); // Crée le dossier s’il n’existe pas
+        }
+
+        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $imageName = uniqid() . '.' . $ext;
+        move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $imageName);
+    } elseif (!empty($data['image'])) {
+        $imageName = $data['image']; // Lors d’une mise à jour sans changement d’image
+    }
 
     if (isset($data['idproduit'])) {
         // Mise à jour
-        $stmt = $pdo->prepare("UPDATE produit SET   
-            name = ?,   
-            idcategory = ?,   
-            price = ?,   
-            description = ?,   
-            image = COALESCE(?, image)  
-            WHERE idproduit = ?");
+        $stmt = $pdo->prepare("UPDATE produit SET name = ?, idcategory = ?, price = ?, description = ?, image = ? WHERE idproduit = ?");
         $stmt->execute([
             $data['name'],
             $data['idcategory'],
             $data['price'],
             $data['description'],
-            $imagePath,
+            $imageName,
             $data['idproduit']
         ]);
         return $data['idproduit'];
     } else {
         // Insertion
-        $stmt = $pdo->prepare("INSERT INTO produit   
-            (name, idcategory, price, description, image)   
-            VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO produit (name, idcategory, price, description, image) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['name'],
             $data['idcategory'],
             $data['price'],
             $data['description'],
-            $imagePath ?? 'default.jpg'
+            $imageName
         ]);
         return $pdo->lastInsertId();
     }
 }
+
 
 function deleteProduct($id) {
     global $pdo;
