@@ -9,6 +9,8 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'akbusiness');
 define('DB_USER', 'root');
 define('DB_PASS', '');
+define('UPLOAD_DIR', __DIR__ . '/uploads/');
+define('UPLOAD_PATH', 'uploads/');
 
 // Connexion PDO
 try {
@@ -30,10 +32,10 @@ try {
 function getProducts($page = 1, $perPage = 5) {
     global $pdo;
     $offset = ($page - 1) * $perPage;
-    $stmt = $pdo->prepare("SELECT p.*, c.name AS category_name 
-                          FROM produit p 
-                          LEFT JOIN category c ON p.idcategory = c.idcategory 
-                          LIMIT :offset, :perPage");
+    $stmt = $pdo->prepare("SELECT p.*, c.name AS category_name
+        FROM produit p
+        LEFT JOIN category c ON p.idcategory = c.idcategory
+        LIMIT :offset, :perPage");
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
     $stmt->execute();
@@ -47,6 +49,26 @@ function getProductById($id) {
     return $stmt->fetch();
 }
 
+function handleImageUpload() {
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
+    if (!is_dir(UPLOAD_DIR)) {
+        mkdir(UPLOAD_DIR, 0755, true);
+    }
+
+    $filename = uniqid() . '_' . basename($_FILES['image']['name']);
+    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
+    $targetPath = UPLOAD_DIR . $filename;
+
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+        return UPLOAD_PATH . $filename;
+    }
+
+    return null;
+}
+
 function saveProduct($data) {
     global $pdo;
 
@@ -54,35 +76,37 @@ function saveProduct($data) {
         throw new Exception("Le nom du produit est obligatoire.");
     }
 
+    $imagePath = handleImageUpload();
+
     if (isset($data['idproduit'])) {
         // Mise à jour
-        $stmt = $pdo->prepare("UPDATE produit SET 
-                             name = ?, 
-                             idcategory = ?, 
-                             price = ?, 
-                             description = ?, 
-                             image = ? 
-                             WHERE idproduit = ?");
+        $stmt = $pdo->prepare("UPDATE produit SET   
+            name = ?,   
+            idcategory = ?,   
+            price = ?,   
+            description = ?,   
+            image = COALESCE(?, image)  
+            WHERE idproduit = ?");
         $stmt->execute([
             $data['name'],
             $data['idcategory'],
             $data['price'],
             $data['description'],
-            $data['image'] ?? 'default.jpg',
+            $imagePath,
             $data['idproduit']
         ]);
         return $data['idproduit'];
     } else {
         // Insertion
-        $stmt = $pdo->prepare("INSERT INTO produit 
-                             (name, idcategory, price, description, image) 
-                             VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO produit   
+            (name, idcategory, price, description, image)   
+            VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['name'],
             $data['idcategory'],
             $data['price'],
             $data['description'],
-            $data['image'] ?? 'default.jpg'
+            $imagePath ?? 'default.jpg'
         ]);
         return $pdo->lastInsertId();
     }
@@ -104,10 +128,10 @@ function countProducts() {
 
 function getCategories() {
     global $pdo;
-    $stmt = $pdo->query("SELECT c.*, COUNT(p.idproduit) as product_count 
-                         FROM category c 
-                         LEFT JOIN produit p ON p.idcategory = c.idcategory 
-                         GROUP BY c.idcategory");
+    $stmt = $pdo->query("SELECT c.*, COUNT(p.idproduit) as product_count
+        FROM category c
+        LEFT JOIN produit p ON p.idcategory = c.idcategory
+        GROUP BY c.idcategory");
     return $stmt->fetchAll();
 }
 
@@ -139,7 +163,6 @@ function saveCategory($data) {
 function deleteCategory($id) {
     global $pdo;
 
-    // Vérification d'utilisation
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM produit WHERE idcategory = ?");
     $stmt->execute([$id]);
     if ($stmt->fetchColumn() > 0) {
@@ -183,8 +206,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     'name' => $_POST['name'],
                     'idcategory' => $_POST['idcategory'],
                     'price' => $_POST['price'],
-                    'description' => $_POST['description'],
-                    'image' => $_POST['image'] ?? null
+                    'description' => $_POST['description']
                 ];
                 if (!empty($_POST['id'])) {
                     $data['idproduit'] = $_POST['id'];
