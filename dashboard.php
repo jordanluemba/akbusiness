@@ -552,373 +552,256 @@ try {
     </div>
 
     <script>
-        // DOM Elements
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const closeMobileMenu = document.getElementById('close-mobile-menu');
-        const mobileSidebar = document.querySelector('.mobile-sidebar');
-        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-        const themeToggle = document.getElementById('theme-toggle');
-        const productsTableBody = document.getElementById('products-table-body');
-        const categoriesTableBody = document.getElementById('categories-table-body');
-        const addProductBtn = document.getElementById('add-product-btn');
-        const addCategoryBtn = document.getElementById('add-category-btn');
-        const productModal = document.getElementById('product-modal');
-        const categoryModal = document.getElementById('category-modal');
-        const saveProductBtn = document.getElementById('save-product-btn');
-        const cancelProductBtn = document.getElementById('cancel-product-btn');
-        const saveCategoryBtn = document.getElementById('save-category-btn');
-        const cancelCategoryBtn = document.getElementById('cancel-category-btn');
-        const productCategorySelect = document.getElementById('product-category');
+    // Elements DOM
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const closeMobileMenu = document.getElementById('close-mobile-menu');
+    const mobileSidebar = document.querySelector('.mobile-sidebar');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const themeToggle = document.getElementById('theme-toggle');
+    const productsTableBody = document.getElementById('products-table-body');
+    const categoriesTableBody = document.getElementById('categories-table-body');
+    const addProductBtn = document.getElementById('add-product-btn');
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const productModal = document.getElementById('product-modal');
+    const categoryModal = document.getElementById('category-modal');
+    const saveProductBtn = document.getElementById('save-product-btn');
+    const cancelProductBtn = document.getElementById('cancel-product-btn');
+    const saveCategoryBtn = document.getElementById('save-category-btn');
+    const cancelCategoryBtn = document.getElementById('cancel-category-btn');
+    const productCategorySelect = document.getElementById('product-category');
 
-        // State
-        let currentProductId = null;
-        let currentCategoryId = null;
+    // État
+    let currentProductId = null;
+    let currentCategoryId = null;
 
-        // Initialize
-        function init() {
-            setupEventListeners();
-        }
+    // Initialisation
+    function init() {
+        setupEventListeners();
+    }
 
-        // Open product modal
-        function openProductModal(productId = null) {
-            const modalTitle = document.getElementById('product-modal-title');
-            
-            if (productId) {
-                modalTitle.textContent = 'Modifier le produit';
-                currentProductId = productId;
-                
-                // Récupérer les données du produit via AJAX
-                fetch('config.php', {
+    // Ouvrir le modal produit
+    async function openProductModal(productId = null) {
+        const modalTitle = document.getElementById('product-modal-title');
+        currentProductId = productId;
+
+        if (productId) {
+            modalTitle.textContent = 'Modifier le produit';
+            try {
+                const response = await fetch('config.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: `action=get_product&id=${productId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('product-name').value = data.data.name;
-                        document.getElementById('product-category').value = data.data.idcategory;
-                        document.getElementById('product-price').value = data.data.price;
-                        document.getElementById('product-description').value = data.data.description;
-                    } else {
-                        alert(data.message || 'Erreur lors du chargement du produit');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Une erreur est survenue');
                 });
-            } else {
-                modalTitle.textContent = 'Ajouter un produit';
-                currentProductId = null;
-                document.getElementById('product-name').value = '';
-                document.getElementById('product-category').value = '';
-                document.getElementById('product-price').value = '';
-                document.getElementById('product-description').value = '';
-                document.getElementById('product-image').value = '';
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('product-name').value = data.data.name;
+                    document.getElementById('product-category').value = data.data.idcategory;
+                    document.getElementById('product-price').value = data.data.price;
+                    document.getElementById('product-description').value = data.data.description;
+                } else {
+                    alert(data.message || 'Erreur lors du chargement du produit');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Une erreur est survenue');
             }
-            
-            productModal.classList.remove('hidden');
-        }
-
-        // Open category modal
-        function openProductModal(productId = null) {
-    const modalTitle = document.getElementById('product-modal-title');
-    
-    if (productId) {
-        modalTitle.textContent = 'Modifier le produit';
-        currentProductId = productId;
-        
-        // Récupérer les données du produit via AJAX
-        fetch('config.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: `action=get_product&id=${productId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('product-name').value = data.data.name;
-                document.getElementById('product-category').value = data.data.idcategory;  // Utilise "idcategory"
-                document.getElementById('product-price').value = data.data.price;
-                document.getElementById('product-description').value = data.data.description;
-            } else {
-                alert(data.message || 'Erreur lors du chargement du produit');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Une erreur est survenue');
-        });
-    } else {
-        modalTitle.textContent = 'Ajouter un produit';
-        currentProductId = null;
-        document.getElementById('product-name').value = '';
-        document.getElementById('product-category').value = '';  // Assure-toi que le champ est réinitialisé
-        document.getElementById('product-price').value = '';
-        document.getElementById('product-description').value = '';
-        document.getElementById('product-image').value = '';
-    }
-    
-    productModal.classList.remove('hidden');
-}
-
-
-        // Save product
-        function saveProduct() {
-    const name = document.getElementById('product-name').value;
-    const categoryId = document.getElementById('product-category').value;
-    const price = parseFloat(document.getElementById('product-price').value);
-    const description = document.getElementById('product-description').value;
-
-    // 🛠️ Ajout du bloc pour diagnostiquer
-    console.log('Name:', name);
-    console.log('Category ID:', categoryId);
-    console.log('Price:', price);
-    console.log('isNaN(price):', isNaN(price));
-    console.log('Description:', description);
-
-    if (
-        name.trim() === '' ||
-        categoryId.trim() === '' ||
-        isNaN(price) ||
-        description.trim() === ''
-    ) {
-        alert('Veuillez remplir tous les champs correctement');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('action', 'save_product');
-    formData.append('name', name);
-    formData.append('idcategory', categoryId);  // Envoie 'idcategory' au lieu de 'category_id'
-    formData.append('price', price);
-    formData.append('description', description);
-    
-    if (currentProductId) {
-        formData.append('id', currentProductId);
-    }
-    
-    // Gestion de l'image si nécessaire
-    const imageInput = document.getElementById('product-image');
-    if (imageInput.files.length > 0) {
-        formData.append('image', imageInput.files[0]);
-    }
-
-    fetch('config.php', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            productModal.classList.add('hidden');
-            window.location.reload();
         } else {
-            alert(data.message || 'Erreur lors de la sauvegarde');
+            modalTitle.textContent = 'Ajouter un produit';
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-category').value = '';
+            document.getElementById('product-price').value = '';
+            document.getElementById('product-description').value = '';
+            document.getElementById('product-image').value = '';
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Une erreur est survenue');
-    });
-}
 
+        productModal.classList.remove('hidden');
+    }
 
-        // Save category
-        function saveCategory() {
-            const name = document.getElementById('category-name').value;
-            
-            if (!name) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('action', 'save_category');
-            formData.append('name', name);
-            
-            if (currentCategoryId) {
-                formData.append('id', currentCategoryId);
-            }
-            
-            fetch('config.php', {
+    // Sauvegarder un produit
+    async function saveProduct() {
+        const name = document.getElementById('product-name').value.trim();
+        const categoryId = document.getElementById('product-category').value.trim();
+        const price = parseFloat(document.getElementById('product-price').value);
+        const description = document.getElementById('product-description').value.trim();
+
+        if (!name || !categoryId || isNaN(price) || !description) {
+            alert('Veuillez remplir tous les champs correctement');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'save_product');
+        formData.append('name', name);
+        formData.append('idcategory', categoryId);
+        formData.append('price', price);
+        formData.append('description', description);
+        if (currentProductId) formData.append('id', currentProductId);
+
+        const imageInput = document.getElementById('product-image');
+        if (imageInput.files.length > 0) {
+            formData.append('image', imageInput.files[0]);
+        }
+
+        try {
+            const response = await fetch('config.php', {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    categoryModal.classList.add('hidden');
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Erreur lors de la sauvegarde');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Une erreur est survenue');
             });
+            const data = await response.json();
+            alert(data.message || 'Opération réussie');
+            if (data.success) {
+                productModal.classList.add('hidden');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Une erreur est survenue');
+        }
+    }
+
+    // Sauvegarder une catégorie
+    async function saveCategory() {
+        const name = document.getElementById('category-name').value.trim();
+        if (!name) {
+            alert('Veuillez remplir tous les champs');
+            return;
         }
 
-        // Delete product
-        function deleteProduct(productId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-                fetch('config.php', {
+        const formData = new FormData();
+        formData.append('action', 'save_category');
+        formData.append('name', name);
+        if (currentCategoryId) formData.append('id', currentCategoryId);
+
+        try {
+            const response = await fetch('config.php', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+            alert(data.message || 'Opération réussie');
+            if (data.success) {
+                categoryModal.classList.add('hidden');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Une erreur est survenue');
+        }
+    }
+
+    // Supprimer un produit
+    async function deleteProduct(productId) {
+        if (confirm('Supprimer ce produit ?')) {
+            try {
+                const response = await fetch('config.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: `action=delete_product&id=${productId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Erreur lors de la suppression');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Une erreur est survenue');
                 });
+                const data = await response.json();
+                alert(data.message || 'Suppression réussie');
+                if (data.success) window.location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('Une erreur est survenue');
             }
         }
+    }
 
-        // Delete category
-        function deleteCategory(categoryId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-                fetch('config.php', {
+    // Supprimer une catégorie
+    async function deleteCategory(categoryId) {
+        if (confirm('Supprimer cette catégorie ?')) {
+            try {
+                const response = await fetch('config.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: `action=delete_category&id=${categoryId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Erreur lors de la suppression');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Une erreur est survenue');
                 });
+                const data = await response.json();
+                alert(data.message || 'Suppression réussie');
+                if (data.success) window.location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('Une erreur est survenue');
             }
         }
+    }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Mobile menu
-            mobileMenuButton.addEventListener('click', () => {
-                mobileSidebar.classList.add('open');
-                mobileMenuOverlay.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            });
-            
-            closeMobileMenu.addEventListener('click', () => {
-                mobileSidebar.classList.remove('open');
-                mobileMenuOverlay.classList.remove('open');
-                document.body.style.overflow = '';
-            });
-            
-            mobileMenuOverlay.addEventListener('click', () => {
-                mobileSidebar.classList.remove('open');
-                mobileMenuOverlay.classList.remove('open');
-                document.body.style.overflow = '';
-            });
-            
-            // Theme toggle
-            themeToggle.addEventListener('click', () => {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('theme', 'dark');
-                }
-            });
-            
-            // Check for saved theme preference
-            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-            
-            // Products
-            addProductBtn.addEventListener('click', () => openProductModal());
-            
-            productsTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('edit-product-btn') || e.target.closest('.edit-product-btn')) {
-                    const button = e.target.classList.contains('edit-product-btn') ? e.target : e.target.closest('.edit-product-btn');
-                    const productId = parseInt(button.dataset.id);
-                    openProductModal(productId);
-                }
-                
-                if (e.target.classList.contains('delete-product-btn') || e.target.closest('.delete-product-btn')) {
-                    const button = e.target.classList.contains('delete-product-btn') ? e.target : e.target.closest('.delete-product-btn');
-                    const productId = parseInt(button.dataset.id);
-                    deleteProduct(productId);
-                }
-            });
-            
-            // Categories
-            addCategoryBtn.addEventListener('click', () => openCategoryModal());
-            
-            categoriesTableBody.addEventListener('click', (e) => {
-                if (e.target.classList.contains('edit-category-btn') || e.target.closest('.edit-category-btn')) {
-                    const button = e.target.classList.contains('edit-category-btn') ? e.target : e.target.closest('.edit-category-btn');
-                    const categoryId = parseInt(button.dataset.id);
-                    openCategoryModal(categoryId);
-                }
-                
-                if (e.target.classList.contains('delete-category-btn') || e.target.closest('.delete-category-btn')) {
-                    const button = e.target.classList.contains('delete-category-btn') ? e.target : e.target.closest('.delete-category-btn');
-                    const categoryId = parseInt(button.dataset.id);
-                    deleteCategory(categoryId);
-                }
-            });
-            
-            // Product modal
-            saveProductBtn.addEventListener('click', saveProduct);
-            
-            cancelProductBtn.addEventListener('click', () => {
-                productModal.classList.add('hidden');
-            });
-            
-            // Category modal
-            saveCategoryBtn.addEventListener('click', saveCategory);
-            
-            cancelCategoryBtn.addEventListener('click', () => {
-                categoryModal.classList.add('hidden');
-            });
+    // Écouteurs d'événements
+    function setupEventListeners() {
+        // Menu mobile
+        mobileMenuButton?.addEventListener('click', () => {
+            mobileSidebar.classList.add('open');
+            mobileMenuOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeMobileMenu?.addEventListener('click', closeMobile);
+        mobileMenuOverlay?.addEventListener('click', closeMobile);
+
+        function closeMobile() {
+            mobileSidebar.classList.remove('open');
+            mobileMenuOverlay.classList.remove('open');
+            document.body.style.overflow = '';
         }
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
+        // Thème
+        themeToggle?.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Appliquer le thème enregistré
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Produits
+        addProductBtn?.addEventListener('click', () => openProductModal());
+        productsTableBody?.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-product-btn');
+            const deleteBtn = e.target.closest('.delete-product-btn');
+            if (editBtn) openProductModal(parseInt(editBtn.dataset.id));
+            if (deleteBtn) deleteProduct(parseInt(deleteBtn.dataset.id));
+        });
+
+        // Catégories
+        addCategoryBtn?.addEventListener('click', () => {
+            currentCategoryId = null;
+            document.getElementById('category-name').value = '';
+            categoryModal.classList.remove('hidden');
+        });
+
+        categoriesTableBody?.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-category-btn');
+            if (deleteBtn) deleteCategory(parseInt(deleteBtn.dataset.id));
+        });
+
+        // Boutons sauvegarde/annulation
+        saveProductBtn?.addEventListener('click', saveProduct);
+        cancelProductBtn?.addEventListener('click', () => productModal.classList.add('hidden'));
+        saveCategoryBtn?.addEventListener('click', saveCategory);
+        cancelCategoryBtn?.addEventListener('click', () => categoryModal.classList.add('hidden'));
+    }
+
+    // Démarrage
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
 </body>
 </html>
