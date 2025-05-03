@@ -1,3 +1,32 @@
+<?php
+require_once 'config.php';
+
+// Configuration des chemins d'images
+define('PRODUCT_IMAGE_PATH', 'uploads/produits/');
+define('DEFAULT_IMAGE', 'chemin/vers/image/par-defaut.jpg'); // À remplacer par votre image par défaut
+
+// Récupération des produits depuis la base de données
+$products = [];
+$categories = [];
+
+try {
+    // Récupérer les produits avec leur URL d'image complète
+    $stmt = $pdo->query("SELECT * FROM produit");
+    while ($product = $stmt->fetch()) {
+        $product['image_url'] = !empty($product['image']) ? PRODUCT_IMAGE_PATH . $product['image'] : DEFAULT_IMAGE;
+        $products[] = $product;
+    }
+    
+    // Récupérer les catégories
+    $stmt = $pdo->query("SELECT DISTINCT idcategory, name FROM category");
+    while ($cat = $stmt->fetch()) {
+        $categories[$cat['idcategory']] = $cat['name'];
+    }
+} catch (PDOException $e) {
+    error_log("Erreur de base de données: " . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -53,29 +82,6 @@
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
-    <?php
-    require_once 'config.php';
-    
-    // Récupérer tous les produits depuis la base de données
-    $products = [];
-    try {
-        $stmt = $pdo->query("SELECT * FROM produit");
-        $products = $stmt->fetchAll();
-        
-        // Récupérer les catégories pour les boutons de filtre
-        $categories = [];
-        $stmt = $pdo->query("SELECT DISTINCT idcategory, name FROM category");
-        $dbCategories = $stmt->fetchAll();
-        
-        foreach ($dbCategories as $cat) {
-            $categories[$cat['idcategory']] = $cat['name'];
-        }
-    } catch (PDOException $e) {
-        // En production, vous pourriez logger cette erreur
-        error_log("Erreur de base de données: " . $e->getMessage());
-    }
-    ?>
-
     <!-- Header -->
     <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -85,13 +91,11 @@
             </div>
             
             <div class="flex items-center space-x-4">
-                <!-- Dark/Light Mode Toggle -->
                 <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                     <i class="fas fa-moon dark:hidden"></i>
                     <i class="fas fa-sun hidden dark:block"></i>
                 </button>
                 
-                <!-- Cart Button -->
                 <button id="cart-button" class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                     <i class="fas fa-shopping-cart"></i>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-primary-light dark:bg-primary-dark text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
@@ -120,7 +124,9 @@
             <?php foreach ($products as $product): ?>
             <div class="product-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col" data-category="<?= $product['idcategory'] ?>">
                 <div class="p-4 flex-grow">
-                    <img src="<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-40 object-contain mb-4">
+                    <img src="<?= htmlspecialchars($product['image_url']) ?>" 
+                         alt="<?= htmlspecialchars($product['name']) ?>" 
+                         class="w-full h-40 object-contain mb-4">
                     <h3 class="font-semibold mb-1"><?= htmlspecialchars($product['name']) ?></h3>
                     <p class="text-sm text-gray-600 dark:text-gray-300 mb-2 line-clamp-2"><?= htmlspecialchars($product['description']) ?></p>
                     <p class="font-bold text-primary-light dark:text-primary-dark mb-3"><?= number_format($product['price'], 2) ?> $</p>
@@ -154,18 +160,15 @@
                         AK Business
                     </h2>
                     <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Votre boutique en ligne préférée</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Développé par <a href="https://linktr.ee/Jordane_Luemba" target="_blank" class="text-primary-light dark:text-primary-dark hover:underline">Jordane Luemba</a>
-                    </p>
                 </div>
                 <div class="flex space-x-4">
-                    <a href="https://www.facebook.com/akichmajaveli.kiaku" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="https://www.instagram.com/akichkapita?igsh=MTFpb3VrYXJmenVkcw==" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="https://wa.me/243810571546" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
+                    <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
@@ -186,7 +189,6 @@
         </div>
         
         <div class="p-4" id="cart-items">
-            <!-- Cart items will be loaded here -->
             <div class="text-center py-8 text-gray-500" id="empty-cart-message">
                 <i class="fas fa-shopping-cart text-4xl mb-2"></i>
                 <p>Votre panier est vide</p>
@@ -215,7 +217,7 @@
                 'id' => $product['idproduit'],
                 'name' => $product['name'],
                 'price' => (float)$product['price'],
-                'image' => $product['image'],
+                'image' => $product['image_url'],
                 'idcategory' => $product['idcategory'],
                 'description' => $product['description']
             ];
@@ -265,7 +267,6 @@
 
         // Update cart UI
         function updateCartUI() {
-            // Update cart items
             if (cart.length > 0) {
                 emptyCartMessage.classList.add('hidden');
                 
@@ -293,11 +294,9 @@
                 emptyCartMessage.classList.remove('hidden');
             }
             
-            // Update cart count
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
             cartCount.textContent = totalItems;
             
-            // Update cart total
             const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
             cartTotal.textContent = formatPrice(totalPrice);
         }
@@ -387,7 +386,6 @@
             
             // Product quantity and add to cart
             productsContainer.addEventListener('click', (e) => {
-                // Quantity buttons
                 if (e.target.classList.contains('quantity-btn') || e.target.closest('.quantity-btn')) {
                     const button = e.target.classList.contains('quantity-btn') ? e.target : e.target.closest('.quantity-btn');
                     const action = button.dataset.action;
@@ -407,7 +405,6 @@
                     }
                 }
                 
-                // Add to cart button
                 if (e.target.classList.contains('add-to-cart-btn') || e.target.closest('.add-to-cart-btn')) {
                     const button = e.target.classList.contains('add-to-cart-btn') ? e.target : e.target.closest('.add-to-cart-btn');
                     const productId = parseInt(button.dataset.id);
@@ -434,7 +431,6 @@
                 
                 const totalPrice = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
                 
-                // Create WhatsApp message
                 let message = `Bonjour *AKBUSINESS*, je souhaite commander les articles suivants:\n\n`;
                 
                 cart.forEach(item => {
@@ -443,10 +439,7 @@
                 
                 message += `\nTotal: ${formatPrice(totalPrice)}\n\nMerci !`;
                 
-                // Encode for URL
                 const encodedMessage = encodeURIComponent(message);
-                
-                // Open WhatsApp
                 window.open(`https://wa.me/243810571546?text=${encodedMessage}`, '_blank');
             });
             
@@ -455,7 +448,6 @@
                 button.addEventListener('click', () => {
                     const categoryId = button.dataset.category;
                     
-                    // Update active button
                     categoryButtons.forEach(btn => {
                         if (btn === button) {
                             btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
@@ -466,7 +458,6 @@
                         }
                     });
                     
-                    // Filter products
                     filterProducts(categoryId);
                 });
             });
