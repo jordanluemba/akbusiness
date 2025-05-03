@@ -5,13 +5,51 @@ require_once 'config.php';
 define('PRODUCT_IMAGE_PATH', 'uploads/produits/');
 define('DEFAULT_IMAGE', 'chemin/vers/image/par-defaut.jpg'); // À remplacer par votre image par défaut
 
+// Paramètres de pagination
+$itemsPerPage = 12;
+$currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($currentPage - 1) * $itemsPerPage;
+
+// Paramètres de recherche
+$searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+
 // Récupération des produits depuis la base de données
 $products = [];
 $categories = [];
+$totalProducts = 0;
 
 try {
+    // Requête de base pour les produits
+    $sql = "SELECT * FROM produit";
+    $params = [];
+    
+    // Ajout de la condition de recherche si un terme est spécifié
+    if (!empty($searchTerm)) {
+        $sql .= " WHERE name LIKE :search OR description LIKE :search";
+        $params[':search'] = '%' . $searchTerm . '%';
+    }
+    
+    // Requête pour le nombre total de produits (pour la pagination)
+    $countStmt = $pdo->prepare(str_replace('*', 'COUNT(*)', $sql));
+    $countStmt->execute($params);
+    $totalProducts = $countStmt->fetchColumn();
+    
+    // Ajout de la pagination à la requête principale
+    $sql .= " LIMIT :limit OFFSET :offset";
+    $params[':limit'] = $itemsPerPage;
+    $params[':offset'] = $offset;
+    
     // Récupérer les produits avec leur URL d'image complète
-    $stmt = $pdo->query("SELECT * FROM produit");
+    $stmt = $pdo->prepare($sql);
+    foreach ($params as $key => &$val) {
+        if ($key === ':limit' || $key === ':offset') {
+            $stmt->bindParam($key, $val, PDO::PARAM_INT);
+        } else {
+            $stmt->bindParam($key, $val);
+        }
+    }
+    $stmt->execute();
+    
     while ($product = $stmt->fetch()) {
         $product['image_url'] = !empty($product['image']) ? PRODUCT_IMAGE_PATH . $product['image'] : DEFAULT_IMAGE;
         $products[] = $product;
@@ -25,6 +63,9 @@ try {
 } catch (PDOException $e) {
     error_log("Erreur de base de données: " . $e->getMessage());
 }
+
+// Calcul du nombre total de pages
+$totalPages = ceil($totalProducts / $itemsPerPage);
 ?>
 
 <!DOCTYPE html>
@@ -106,8 +147,27 @@ try {
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8 flex-grow">
-        <!-- Categories -->
+        <!-- Search and Categories -->
         <div class="mb-8">
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <form method="GET" action="" class="flex">
+                    <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" 
+                           placeholder="Rechercher des produits..." 
+                           class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark bg-white dark:bg-gray-800">
+                    <button type="submit" class="px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-r-lg hover:bg-opacity-90">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <?php if (!empty($searchTerm)): ?>
+                    <div class="mt-2 text-sm">
+                        <span class="text-gray-600 dark:text-gray-300">Résultats pour: "<?= htmlspecialchars($searchTerm) ?>"</span>
+                        <a href="?" class="ml-2 text-primary-light dark:text-primary-dark hover:underline">Effacer la recherche</a>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Categories -->
             <h2 class="text-xl font-semibold mb-4">Catégories</h2>
             <div class="flex flex-wrap gap-2">
                 <button class="category-btn px-4 py-2 rounded-full bg-primary-light dark:bg-primary-dark text-white" data-category="all">Tous</button>
@@ -148,6 +208,51 @@ try {
             </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                <?php if ($currentPage > 1): ?>
+                    <a href="?page=<?= $currentPage - 1 ?><?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>" 
+                       class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="?page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>" 
+                       class="px-3 py-1 rounded <?= $i === $currentPage ? 'bg-primary-light dark:bg-primary-dark text-white' : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="?page=<?= $currentPage + 1 ?><?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>" 
+                       class="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php endif; ?>
+            </nav>
+        </div>
+        <?php endif; ?>
+
+        <!-- No results message -->
+        <?php if (empty($products) && !empty($searchTerm)): ?>
+            <div class="text-center py-12">
+                <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-600 dark:text-gray-300">Aucun résultat trouvé</h3>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Essayez avec d'autres termes de recherche</p>
+                <a href="?" class="mt-4 inline-block px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg hover:bg-opacity-90">
+                    Voir tous les produits
+                </a>
+            </div>
+        <?php elseif (empty($products)): ?>
+            <div class="text-center py-12">
+                <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-600 dark:text-gray-300">Aucun produit disponible</h3>
+            </div>
+        <?php endif; ?>
     </main>
 
     <!-- Footer -->
@@ -325,11 +430,27 @@ try {
         }
 
         // Remove from cart
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            saveCart();
-            updateCartUI();
-        }
+        // Remove from cart
+function removeFromCart(index) {
+    // Sauvegarder l'ID du produit avant suppression pour mise à jour de l'interface
+    const removedProductId = cart[index].id;
+    
+    // Supprimer l'élément du panier
+    cart.splice(index, 1);
+    saveCart();
+    updateCartUI();
+    
+    // Mettre à jour l'affichage des quantités dans la liste des produits
+    updateProductQuantityDisplays(removedProductId);
+}
+
+// Fonction pour mettre à jour l'affichage des quantités dans la liste des produits
+function updateProductQuantityDisplays(productId) {
+    const quantityDisplay = document.querySelector(`.quantity-display[data-id="${productId}"]`);
+    if (quantityDisplay) {
+        quantityDisplay.textContent = '1'; // Réinitialiser à 1
+    }
+}
 
         // Show notification
         function showNotification(message) {
