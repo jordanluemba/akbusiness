@@ -4,12 +4,12 @@
 // Inclure la configuration et les fonctions CRUD
 require_once 'config.php';
 
-// Vérifier si l'utilisateur est connecté (à adapter selon votre système d'authentification)
-/*session_start();
+// Vérifier si l'utilisateur est connecté
+session_start();
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
-} */
+}
 
 // Récupérer les données pour l'affichage
 try {
@@ -33,6 +33,7 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -453,55 +454,53 @@ try {
             
             <!-- Product Modal -->
             <div id="product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
-        </div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="product-modal-title">Ajouter un produit</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du produit</label>
-                        <input type="text" id="product-name" name="name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                        <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
                     </div>
-                    <div>
-                        <label for="product-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</label>
-                        <select id="product-category" name="idcategory" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-
-                            <option value="">-- Sélectionner une catégorie --</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?= $category['idcategory'] ?>"><?= htmlspecialchars($category['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="product-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix</label>
-                        <input type="number" step="0.01" id="product-price" name="price" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-                    </div>
-                    <div>
-                        <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                        <textarea id="product-description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white"></textarea>
-                    </div>
-                    <div>
-                        <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
-                        <input type="file" id="product-image" name="image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="product-modal-title">Ajouter un produit</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du produit</label>
+                                    <input type="text" id="product-name" name="name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</label>
+                                    <select id="product-category" name="idcategory" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                        <option value="">-- Sélectionner une catégorie --</option>
+                                        <?php foreach ($categories as $category): ?>
+                                            <option value="<?= $category['idcategory'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="product-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix</label>
+                                    <input type="number" step="0.01" id="product-price" name="price" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                    <textarea id="product-description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white"></textarea>
+                                </div>
+                                <div>
+                                    <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
+                                    <input type="file" id="product-image" name="image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" id="save-product-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-light dark:bg-primary-dark text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:ml-3 sm:w-auto sm:text-sm">
+                                Enregistrer
+                            </button>
+                            <button type="button" id="cancel-product-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Annuler
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" id="save-product-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-light dark:bg-primary-dark text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:ml-3 sm:w-auto sm:text-sm">
-                    Enregistrer
-                </button>
-                <button type="button" id="cancel-product-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Annuler
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
             
             <!-- Category Modal -->
             <div id="category-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
@@ -603,11 +602,21 @@ try {
                     document.getElementById('product-price').value = data.data.price;
                     document.getElementById('product-description').value = data.data.description;
                 } else {
-                    alert(data.message || 'Erreur lors du chargement du produit');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message || 'Erreur lors du chargement du produit',
+                        confirmButtonColor: '#4f46e5'
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Une erreur est survenue');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Une erreur est survenue',
+                    confirmButtonColor: '#4f46e5'
+                });
             }
         } else {
             modalTitle.textContent = 'Ajouter un produit';
@@ -623,54 +632,83 @@ try {
 
     // Sauvegarder un produit
     async function saveProduct() {
-        const name = document.getElementById('product-name').value.trim();
-        const categoryId = document.getElementById('product-category').value.trim();
-        const price = parseFloat(document.getElementById('product-price').value);
-        const description = document.getElementById('product-description').value.trim();
+    const name = document.getElementById('product-name').value.trim();
+    const categoryId = document.getElementById('product-category').value.trim();
+    const price = parseFloat(document.getElementById('product-price').value);
+    const description = document.getElementById('product-description').value.trim();
 
-        if (!name || !categoryId || isNaN(price) || !description) {
-            alert('Veuillez remplir tous les champs correctement');
-            return;
-        }
+    if (!name || !categoryId || isNaN(price) || !description) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Veuillez remplir tous les champs correctement',
+            confirmButtonColor: '#4f46e5'
+        });
+        return;
+    }
 
-        const formData = new FormData();
-        formData.append('action', 'save_product');
-        formData.append('name', name);
-        formData.append('idcategory', categoryId);
-        formData.append('price', price);
-        formData.append('description', description);
-        if (currentProductId) formData.append('id', currentProductId);
+    const formData = new FormData();
+    formData.append('action', currentProductId ? 'update_product' : 'add_product');
+    formData.append('name', name);
+    formData.append('idcategory', categoryId);
+    formData.append('price', price);
+    formData.append('description', description);
+    if (currentProductId) formData.append('id', currentProductId);
 
-        const imageInput = document.getElementById('product-image');
-        if (imageInput.files.length > 0) {
-            formData.append('image', imageInput.files[0]);
-        }
+    const imageInput = document.getElementById('product-image');
+    if (imageInput.files.length > 0) {
+        formData.append('image', imageInput.files[0]);
+    }
 
-        try {
-            const response = await fetch('config.php', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const data = await response.json();
-            alert(data.message || 'Opération réussie');
-            if (data.success) {
+    try {
+        const response = await fetch('config.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Succès',
+                text: data.message || (currentProductId ? 'Produit mis à jour avec succès' : 'Produit ajouté avec succès'),
+                confirmButtonColor: '#4f46e5'
+            }).then(() => {
                 productModal.classList.add('hidden');
                 window.location.reload();
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Une erreur est survenue');
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: data.message || 'Une erreur est survenue',
+                confirmButtonColor: '#4f46e5'
+            });
         }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Une erreur est survenue',
+            confirmButtonColor: '#4f46e5'
+        });
     }
+}
 
     // Sauvegarder une catégorie
     async function saveCategory() {
         const name = document.getElementById('category-name').value.trim();
         if (!name) {
-            alert('Veuillez remplir tous les champs');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: 'Veuillez remplir tous les champs',
+                confirmButtonColor: '#4f46e5'
+            });
             return;
         }
 
@@ -688,59 +726,142 @@ try {
                 }
             });
             const data = await response.json();
-            alert(data.message || 'Opération réussie');
+            
             if (data.success) {
-                categoryModal.classList.add('hidden');
-                window.location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès',
+                    text: data.message || 'Opération réussie',
+                    confirmButtonColor: '#4f46e5'
+                }).then(() => {
+                    categoryModal.classList.add('hidden');
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: data.message || 'Une erreur est survenue',
+                    confirmButtonColor: '#4f46e5'
+                });
             }
         } catch (error) {
             console.error(error);
-            alert('Une erreur est survenue');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: 'Une erreur est survenue',
+                confirmButtonColor: '#4f46e5'
+            });
         }
     }
 
     // Supprimer un produit
     async function deleteProduct(productId) {
-        if (confirm('Supprimer ce produit ?')) {
-            try {
-                const response = await fetch('config.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `action=delete_product&id=${productId}`
-                });
-                const data = await response.json();
-                alert(data.message || 'Suppression réussie');
-                if (data.success) window.location.reload();
-            } catch (error) {
-                console.error(error);
-                alert('Une erreur est survenue');
+        Swal.fire({
+            title: 'Êtes-vous sûr?',
+            text: "Vous ne pourrez pas revenir en arrière!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Oui, supprimer!',
+            cancelButtonText: 'Annuler'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('config.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `action=delete_product&id=${productId}`
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Supprimé!',
+                            text: data.message || 'Le produit a été supprimé.',
+                            confirmButtonColor: '#4f46e5'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: data.message || 'Échec de la suppression',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                }
             }
-        }
+        });
     }
 
     // Supprimer une catégorie
     async function deleteCategory(categoryId) {
-        if (confirm('Supprimer cette catégorie ?')) {
-            try {
-                const response = await fetch('config.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `action=delete_category&id=${categoryId}`
-                });
-                const data = await response.json();
-                alert(data.message || 'Suppression réussie');
-                if (data.success) window.location.reload();
-            } catch (error) {
-                console.error(error);
-                alert('Une erreur est survenue');
+        Swal.fire({
+            title: 'Êtes-vous sûr?',
+            text: "Tous les produits de cette catégorie seront déplacés dans 'Non catégorisé'!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Oui, supprimer!',
+            cancelButtonText: 'Annuler'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('config.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `action=delete_category&id=${categoryId}`
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Supprimé!',
+                            text: data.message || 'La catégorie a été supprimée.',
+                            confirmButtonColor: '#4f46e5'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: data.message || 'Échec de la suppression',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                }
             }
-        }
+        });
     }
 
     // Écouteurs d'événements
@@ -789,7 +910,14 @@ try {
         });
 
         categoriesTableBody?.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-category-btn');
             const deleteBtn = e.target.closest('.delete-category-btn');
+            if (editBtn) {
+                currentCategoryId = parseInt(editBtn.dataset.id);
+                document.getElementById('category-modal-title').textContent = 'Modifier la catégorie';
+                document.getElementById('category-name').value = editBtn.closest('tr').querySelector('td span').textContent;
+                categoryModal.classList.remove('hidden');
+            }
             if (deleteBtn) deleteCategory(parseInt(deleteBtn.dataset.id));
         });
 
