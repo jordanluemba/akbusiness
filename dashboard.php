@@ -197,7 +197,7 @@ try {
             
             <div class="flex items-center space-x-4">
                 <!-- View Website Button -->
-                <a href="index.html" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Voir le site web">
+                <a href="index.php" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Voir le site web">
                     <i class="fas fa-eye"></i>
                 </a>
                 
