@@ -160,6 +160,9 @@ try {
                         AK Business
                     </h2>
                     <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Votre boutique en ligne préférée</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            Développé par <a href="https://linktr.ee/Jordane_Luemba" target="_blank" class="text-primary-light dark:text-primary-dark hover:underline">Jordane Luemba</a>
+                    </p>
                 </div>
                 <div class="flex space-x-4">
                     <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-primary-light dark:hover:text-primary-dark">
