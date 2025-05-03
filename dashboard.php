@@ -361,11 +361,12 @@ try {
                                 <?php else: ?>
                                     <?php foreach ($products as $product): ?>
                                         <tr>
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                                                    <img src="<?= htmlspecialchars($product['image'] ?? 'default-product.jpg') ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-cover">
-                                                </div>
-                                            </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                                                <img src="uploads/produits/<?= htmlspecialchars($product['image'] ?? 'default-product.jpg') ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-cover">
+                                            </div>
+                                        </td>
+
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><?= htmlspecialchars($product['name']) ?></td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($product['category_name'] ?? 'Non catégorisé') ?></td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-bold">$<?= number_format($product['price'], 2) ?></td>
