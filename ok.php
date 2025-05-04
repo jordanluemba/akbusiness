@@ -318,7 +318,7 @@ try {
                 </div>
                 <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary-light to-primary-dark opacity-90"></div>
             </div>
-
+            
             <!-- Products Section -->
             <section id="products-section" class="mb-8">
                 <div class="flex justify-between items-center mb-4">
@@ -337,49 +337,49 @@ try {
                 
                 <div class="dashboard-card bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Image</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nom</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catégorie</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prix</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                <?php if (empty($products)): ?>
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-4 text-center">Aucun produit trouvé</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($products as $product): ?>
-                                        <tr>
-                                            <td class="px-4 py-3 whitespace-nowrap">
-                                                <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                                                    <img src="uploads/produits/<?= htmlspecialchars($product['image'] ?? 'default-product.jpg') ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-cover">
-                                                </div>
-                                            </td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><?= htmlspecialchars($product['name']) ?></td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($product['category_name'] ?? 'Non catégorisé') ?></td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-bold">$<?= number_format($product['price'], 2) ?></td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                                <button class="edit-product-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="<?= $product['idproduit'] ?>">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="delete-product-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="<?= $product['idproduit'] ?>">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+    <thead>
+        <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Image</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nom</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catégorie</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prix</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="products-table-body">
+        <?php if (empty($products)): ?>
+            <tr>
+                <td colspan="5" class="px-4 py-4 text-center">Aucun produit trouvé</td>
+            </tr>
+        <?php else: ?>
+            <?php foreach ($products as $product): ?>
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                            <img src="uploads/produits/<?= htmlspecialchars($product['image'] ?? 'default-product.jpg') ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-cover">
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><?= htmlspecialchars($product['name']) ?></td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($product['category_name'] ?? 'Non catégorisé') ?></td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-bold">$<?= number_format($product['price'], 2) ?></td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                        <button class="edit-product-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="<?= $product['idproduit'] ?>">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-product-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="<?= $product['idproduit'] ?>">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
                     </div>
                     <div class="mt-4 flex justify-between items-center">
                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Affichage de <?= (($currentPage - 1) * 5) + 1 ?> à <?= min($currentPage * 5, $totalProducts) ?> sur <?= $totalProducts ?> produits
+                            Affichage de <span id="products-start"><?= (($currentPage - 1) * 5) + 1 ?></span> à <span id="products-end"><?= min($currentPage * 5, $totalProducts) ?></span> sur <span id="products-total"><?= $totalProducts ?></span> produits
                         </div>
                         <div class="flex space-x-2">
                             <a href="?page=<?= $currentPage - 1 ?>" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md <?= $currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : '' ?>">
@@ -413,7 +413,7 @@ try {
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="categories-table-body">
                                 <?php if (empty($categories)): ?>
                                     <tr>
                                         <td colspan="3" class="px-4 py-4 text-center">Aucune catégorie trouvée</td>
@@ -428,10 +428,10 @@ try {
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><?= $category['product_count'] ?? 0 ?></td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                                <button class="edit-category-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="<?= $category['idcategory'] ?>">
+                                                <button class="edit-category-btn mr-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" data-id="<?= $category['id'] ?>">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="delete-category-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="<?= $category['idcategory'] ?>">
+                                                <button class="delete-category-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" data-id="<?= $category['id'] ?>">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -454,35 +454,33 @@ try {
                     <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                         <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="product-modal-title">Ajouter un produit</h3>
-                            <form id="product-form" enctype="multipart/form-data">
-                                <div class="space-y-4">
-                                    <div>
-                                        <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du produit</label>
-                                        <input type="text" id="product-name" name="name" required class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-                                    </div>
-                                    <div>
-                                        <label for="product-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</label>
-                                        <select id="product-category" name="idcategory" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-                                            <option value="">-- Sélectionner une catégorie --</option>
-                                            <?php foreach ($categories as $category): ?>
-                                                <option value="<?= $category['idcategory'] ?>"><?= htmlspecialchars($category['name']) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="product-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix</label>
-                                        <input type="number" step="0.01" id="product-price" name="price" required class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-                                    </div>
-                                    <div>
-                                        <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                                        <textarea id="product-description" name="description" rows="3" required class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white"></textarea>
-                                    </div>
-                                    <div>
-                                        <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
-                                        <input type="file" id="product-image" name="image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
-                                    </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="product-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du produit</label>
+                                    <input type="text" id="product-name" name="name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
                                 </div>
-                            </form>
+                                <div>
+                                    <label for="product-category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Catégorie</label>
+                                    <select id="product-category" name="idcategory" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                        <option value="">-- Sélectionner une catégorie --</option>
+                                        <?php foreach ($categories as $category): ?>
+                                            <option value="<?= $category['idcategory'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="product-price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix</label>
+                                    <input type="number" step="0.01" id="product-price" name="price" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="product-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                    <textarea id="product-description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white"></textarea>
+                                </div>
+                                <div>
+                                    <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
+                                    <input type="file" id="product-image" name="image" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-light file:text-white hover:file:bg-primary-dark">
+                                </div>
+                            </div>
                         </div>
                         <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button type="button" id="save-product-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-light dark:bg-primary-dark text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light sm:ml-3 sm:w-auto sm:text-sm">

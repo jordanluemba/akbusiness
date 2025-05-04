@@ -3,9 +3,9 @@ session_start();
 
 // Configuration de la base de données
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'votre_base');
-define('DB_USER', 'votre_user');
-define('DB_PASS', 'votre_mdp');
+define('DB_NAME', 'akbusiness');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 // Connexion PDO
 try {
@@ -45,7 +45,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
                 break;
 
-            case 'add_product':
+                case 'add_product':
+                    try {
+                        // Validation des données
+                        $name = trim($_POST['name']);
+                        $price = floatval($_POST['price']);
+                        $idcategory = intval($_POST['idcategory']);
+                        $description = trim($_POST['description']);
+                
+                        if (empty($name)) {
+                            throw new Exception('Le nom du produit est requis');
+                        }
+                
+                        if ($price <= 0) {
+                            throw new Exception('Le prix doit être supérieur à 0');
+                        }
+                
+                        // Préparation des données de base
+                        $data = [
+                            'name' => $name,
+                            'price' => $price,
+                            'idcategory' => $idcategory,
+                            'description' => $description,
+                            'image' => 'default-product.jpg' // Valeur par défaut
+                        ];
+                
+                        // Gestion de l'image
+                        if (!empty($_FILES['image']['name'])) {
+                            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+                            $fileExt = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                            
+                            // Validation de l'extension
+                            if (!in_array($fileExt, $allowedExtensions)) {
+                                throw new Exception('Format d\'image non supporté. Utilisez JPG, PNG ou WEBP.');
+                            }
+                
+                            // Validation de la taille (max 2MB)
+                            if ($_FILES['image']['size'] > 2000000) {
+                                throw new Exception('L\'image ne doit pas dépasser 2MB');
+                            }
+                
+                            $fileName = uniqid() . '.' . $fileExt;
+                            $filePath = 'uploads/produits/' . $fileName;
+                
+                            if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+                                $data['image'] = $fileName;
+                            } else {
+                                throw new Exception('Erreur lors de l\'upload de l\'image');
+                            }
+                        }
+                
+                        // Insertion en base de données
+                        $stmt = $pdo->prepare("INSERT INTO produit 
+                                              (name, price, idcategory, description, image) 
+                                              VALUES (:name, :price, :idcategory, :description, :image)");
+                        
+                        $stmt->execute($data);
+                
+                        // Récupération de l'ID du nouveau produit
+                        $newProductId = $pdo->lastInsertId();
+                
+                        $response = [
+                            'success' => true,
+                            'message' => 'Produit ajouté avec succès',
+                            'product_id' => $newProductId,
+                            'image' => $data['image']
+                        ];
+                
+                    } catch (Exception $e) {
+                        // En cas d'erreur, supprimer l'image uploadée si nécessaire
+                        if (isset($filePath) && file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                        
+                        $response = [
+                            'success' => false,
+                            'message' => 'Erreur: ' . $e->getMessage()
+                        ];
+                    }
+                    break;
             case 'update_product':
                 $name = trim($_POST['name']);
                 $price = floatval($_POST['price']);

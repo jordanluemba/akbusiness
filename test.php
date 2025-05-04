@@ -22,154 +22,22 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard AK Business</title>
+    <title>Dashboard Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            light: '#4f46e5',
-                            dark: '#6366f1'
-                        },
-                        secondary: {
-                            light: '#f59e0b',
-                            dark: '#fbbf24'
-                        },
-                        success: {
-                            light: '#10b981',
-                            dark: '#34d399'
-                        },
-                        danger: {
-                            light: '#ef4444',
-                            dark: '#f87171'
-                        },
-                        info: {
-                            light: '#3b82f6',
-                            dark: '#60a5fa'
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'wave': 'wave 2s linear infinite'
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        },
-                        wave: {
-                            '0%': { transform: 'rotate(0deg)' },
-                            '10%': { transform: 'rotate(14deg)' },
-                            '20%': { transform: 'rotate(-8deg)' },
-                            '30%': { transform: 'rotate(14deg)' },
-                            '40%': { transform: 'rotate(-4deg)' },
-                            '50%': { transform: 'rotate(10deg)' },
-                            '60%': { transform: 'rotate(0deg)' },
-                            '100%': { transform: 'rotate(0deg)' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        
+        body { font-family: 'Poppins', sans-serif; }
         .glass-effect {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        
-        .dark .glass-effect {
-            background: rgba(0, 0, 0, 0.1);
-        }
-        
-        .gradient-card {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-        }
-        
-        .dashboard-card {
-            transition: all 0.3s ease;
-        }
-        
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.8s ease;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-        
-        .animate-bounce-slow {
-            animation: bounce 3s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-        
-        .cart-item-enter {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        .cart-item-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 300ms ease-out;
-        }
-        .cart-item-exit {
-            opacity: 1;
-        }
-        .cart-item-exit-active {
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 300ms ease-out;
-        }
-        
-        .sidebar {
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-sidebar.open {
-            transform: translateX(0);
-        }
-        
-        .overlay {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .overlay.open {
-            display: block;
-            opacity: 1;
-        }
+        .dark .glass-effect { background: rgba(0, 0, 0, 0.1); }
+        .gradient-card { background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); }
+        .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); }
+        .dashboard-card { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
@@ -177,102 +45,30 @@ try {
     <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <!-- Hamburger menu for mobile -->
                 <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                     <i class="fas fa-bars"></i>
                 </button>
-                
-                <div class="relative">
-                    <i class="fas fa-shopping-bag text-2xl text-primary-light dark:text-primary-dark animate-waving-hand"></i>
-                    <span class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                </div>
-                <h1 class="text-xl font-bold">Dashboard</h1>
+                <h1 class="text-xl font-bold">Dashboard Admin</h1>
             </div>
-            
             <div class="flex items-center space-x-4">
-                <!-- View Website Button -->
-                <a href="index.php" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Voir le site web">
-                    <i class="fas fa-eye"></i>
-                </a>
-                
-                <!-- User Profile -->
                 <div class="flex items-center space-x-2">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-sm font-medium"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Administrateur</p>
-                    </div>
-                    <div class="h-8 w-8 rounded-full bg-primary-light dark:bg-primary-dark flex items-center justify-center text-white font-bold relative">
+                    <div class="h-8 w-8 rounded-full bg-primary-light dark:bg-primary-dark flex items-center justify-center text-white font-bold">
                         <span><?= substr($_SESSION['user_name'] ?? 'A', 0, 1) ?></span>
-                        <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-white dark:border-gray-800"></span>
                     </div>
                 </div>
-                
-                <!-- Dark/Light Mode Toggle -->
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i class="fas fa-moon dark:hidden"></i>
-                    <i class="fas fa-sun hidden dark:block"></i>
-                </button>
-                
-                <!-- Logout Button -->
-                <a href="logout.php" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Déconnexion">
+                <a href="logout.php" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Mobile Sidebar -->
-    <div class="mobile-sidebar fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg z-50 overflow-y-auto md:hidden">
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h2 class="text-lg font-bold flex items-center">
-                <i class="fas fa-chart-line text-xl text-primary-light dark:text-primary-dark mr-2"></i>
-                Menu
-            </h2>
-            <button id="close-mobile-menu" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <nav class="flex-1 overflow-y-auto p-2">
-            <ul class="space-y-1">
-                <li>
-                    <a href="#" class="flex items-center p-2 rounded-lg bg-primary-light dark:bg-primary-dark text-white">
-                        <i class="fas fa-tachometer-alt mr-3"></i>
-                        <span>Tableau de bord</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#products-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="fas fa-box-open mr-3"></i>
-                        <span>Produits</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#categories-section" class="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i class="fas fa-tags mr-3"></i>
-                        <span>Catégories</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    
-    <!-- Overlay for mobile menu -->
-    <div id="mobile-menu-overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40"></div>
-
     <!-- Main Content -->
     <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
         <aside class="hidden md:flex md:flex-shrink-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-lg font-bold flex items-center">
-                    <i class="fas fa-chart-line text-xl text-primary-light dark:text-primary-dark mr-2"></i>
-                    Menu
-                </h2>
-            </div>
-            
-            <nav class="flex-1 overflow-y-auto">
-                <ul class="p-2 space-y-1">
+            <nav class="flex-1 overflow-y-auto p-2">
+                <ul class="space-y-1">
                     <li>
                         <a href="#" class="flex items-center p-2 rounded-lg bg-primary-light dark:bg-primary-dark text-white">
                             <i class="fas fa-tachometer-alt mr-3"></i>
@@ -297,28 +93,6 @@ try {
 
         <!-- Main Content Area -->
         <main class="flex-1 overflow-y-auto p-4 md:p-6">
-            <!-- Welcome Banner -->
-            <div class="gradient-card rounded-xl p-6 mb-6 text-white relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-bold mb-2">Bonjour, <?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?> 👋</h2>
-                    <p class="mb-4">Voici ce qui se passe avec votre boutique aujourd'hui</p>
-                    <div class="flex flex-wrap gap-4">
-                        <div class="bg-white bg-opacity-20 px-4 py-2 rounded-md font-medium flex items-center">
-                            <i class="fas fa-boxes mr-2"></i>
-                            <span><?= $totalProducts ?> Produits</span>
-                        </div>
-                        <div class="bg-white bg-opacity-20 px-4 py-2 rounded-md font-medium flex items-center">
-                            <i class="fas fa-tags mr-2"></i>
-                            <span><?= count($categories) ?> Catégories</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="absolute -bottom-10 -right-10 opacity-20">
-                    <i class="fas fa-chart-pie text-9xl"></i>
-                </div>
-                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary-light to-primary-dark opacity-90"></div>
-            </div>
-
             <!-- Products Section -->
             <section id="products-section" class="mb-8">
                 <div class="flex justify-between items-center mb-4">
@@ -506,11 +280,9 @@ try {
                     <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                         <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="category-modal-title">Ajouter une catégorie</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom de la catégorie</label>
-                                    <input type="text" id="category-name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
-                                </div>
+                            <div>
+                                <label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom de la catégorie</label>
+                                <input type="text" id="category-name" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-light focus:border-primary-light dark:bg-gray-700 dark:text-white">
                             </div>
                         </div>
                         <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -525,24 +297,6 @@ try {
                 </div>
             </div>
         </main>
-    </div>
-
-    <!-- Mobile Bottom Navigation -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg z-50">
-        <div class="flex justify-around items-center p-2">
-            <a href="#" class="p-2 rounded-full text-primary-light dark:text-primary-dark">
-                <i class="fas fa-tachometer-alt text-xl"></i>
-            </a>
-            <a href="#products-section" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
-                <i class="fas fa-box-open text-xl"></i>
-            </a>
-            <a href="#categories-section" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
-                <i class="fas fa-tags text-xl"></i>
-            </a>
-            <a href="#" class="p-2 rounded-full text-gray-500 dark:text-gray-400">
-                <i class="fas fa-cog text-xl"></i>
-            </a>
-        </div>
     </div>
 
     <script>
@@ -756,6 +510,5 @@ try {
         document.getElementById('cancel-category-btn')?.addEventListener('click', () => categoryModal.classList.add('hidden'));
     });
     </script>
-
 </body>
 </html>
