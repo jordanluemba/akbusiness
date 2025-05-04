@@ -193,7 +193,7 @@ try {
                     <i class="fas fa-shopping-bag text-2xl text-primary-light dark:text-primary-dark animate-waving-hand"></i>
                     <span class="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
                 </div>
-                <h1 class="text-xl font-bold">Dashboard AK Business</h1>
+                <h1 class="text-xl font-bold">Dashboard</h1>
             </div>
             
             <div class="flex items-center space-x-4">
